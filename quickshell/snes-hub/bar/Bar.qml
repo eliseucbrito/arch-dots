@@ -569,7 +569,45 @@ PanelWindow {
 
 
 
-            // 6. BATTERY
+            // 6. TOGGL
+            BarItem {
+                property bool isRunning: togglPoll.value ? togglPoll.value.running : false
+
+                // Polling to update icon state
+                Lib.CommandPoll {
+                    id: togglPoll
+                    interval: 10000 // Poll every 10s (the python script handles caching)
+                    command: ["python3", Quickshell.env("HOME") + "/dotfiles/quickshell/snes-hub/lib/toggl_client.py", "status"]
+                    
+                    parse: function(out) {
+                        try {
+                            const data = JSON.parse(out)
+                            if (data && data.id) return { running: true }
+                        } catch (e) {}
+                        return { running: false }
+                    }
+                }
+
+                visible: true
+                icon: ""
+                text: "" // Icon only to save space
+                
+                property color activeColor: win.isDarkMode ? "#E67E80" : "#b13c3a" // Red for recording
+                
+                bgColor: palette.bg
+                iconColor: isRunning ? activeColor : palette.textPrimary
+                textColor: palette.textPrimary
+                
+                borderWidth: 0
+                borderColor: "transparent"
+                hoverColor: palette.hoverSpotlight
+
+                onClicked: {
+                    win.det("quickshell -p " + Quickshell.env("HOME") + "/dotfiles/quickshell/snes-hub/lib/TogglMenu.qml")
+                }
+            }
+
+            // 7. BATTERY
             BarItem {
                 Layout.preferredWidth: 74
                 property string status: String(batStatus.value).trim()
