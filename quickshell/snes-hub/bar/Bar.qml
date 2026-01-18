@@ -95,7 +95,7 @@ PanelWindow {
         onTriggered: hyCache.rebuild()
     }
 
-    // Event Listener + scheduleRebuild)
+    // Event Listener + scheduleRebuild
     Connections {
         target: Hyprland
         function onRawEvent(ev) {
@@ -176,7 +176,7 @@ PanelWindow {
         if (c.includes("qutebrowser")) return "󰖟"
         if (c.includes("kitty")) return "󰄛"
         if (c.includes("alacritty") || c.includes("foot") || c.includes("terminal") || c.includes("ghostty") || c.includes("wezterm")) return ""
-        if (c.includes("code") || c.includes("codium")) return "󰨞"
+        if (c.includes("code") || c.includes("codium") || c.includes("antigravity")) return "󰨞"
         if (c.includes("sublime")) return "󰅳"
         if (c.includes("neovide") || c.includes("nvim")) return ""
         if (c.includes("idea") || c.includes("jetbrains")) return ""
@@ -569,43 +569,78 @@ PanelWindow {
 
 
 
-            // 6. TOGGL
+            // 6. CLOCKIFY
             BarItem {
-                property bool isRunning: togglPoll.value ? togglPoll.value.running : false
+                id: clockifyItem
+                property var startTime: null
+                property bool isRunning: startTime !== null
+                property string durationStr: ""
 
-                // Polling to update icon state
                 Lib.CommandPoll {
-                    id: togglPoll
-                    interval: 10000 // Poll every 10s (the python script handles caching)
-                    command: ["python3", Quickshell.env("HOME") + "/dotfiles/quickshell/snes-hub/lib/toggl_client.py", "status"]
-                    
+                    id: clockifyPoll
+                    interval: 3000
+                    command: ["python3", Quickshell.env("HOME") + "/dotfiles/quickshell/snes-hub/lib/clockify_client.py", "status"]
                     parse: function(out) {
                         try {
                             const data = JSON.parse(out)
-                            if (data && data.id) return { running: true }
+                            if (data && data.running && data.running.id) {
+                                return data.running.timeInterval.start
+                            }
                         } catch (e) {}
-                        return { running: false }
+                        return null
+                    }
+                    onUpdated: {
+                        if (value) clockifyItem.startTime = new Date(value)
+                        else clockifyItem.startTime = null
+                    }
+                }
+
+                // Local timer
+                Timer {
+                    interval: 1000; running: clockifyItem.isRunning; repeat: true
+                    triggeredOnStart: true
+                    onTriggered: {
+                        if (!clockifyItem.startTime) { clockifyItem.durationStr = ""; return }
+                        const now = new Date()
+                        const diff = now.getTime() - clockifyItem.startTime.getTime()
+                        
+                        if (diff < 0) {
+                            clockifyItem.durationStr = "00:00:00"
+                            return
+                        }
+                        
+                        const seconds = Math.floor((diff / 1000) % 60)
+                        const minutes = Math.floor((diff / (1000 * 60)) % 60)
+                        const hours = Math.floor((diff / (1000 * 60 * 60)))
+                        
+                        const pad = (n) => n < 10 ? "0" + n : n
+                        clockifyItem.durationStr = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
                     }
                 }
 
                 visible: true
                 icon: ""
-                text: "" // Icon only to save space
                 
-                property color activeColor: win.isDarkMode ? "#E67E80" : "#b13c3a" // Red for recording
+                // Show duration if running
+                text: isRunning ? durationStr : "" 
+                
+                property color activeColor: "#03a9f4"
                 
                 bgColor: palette.bg
+                // Turn Blue if running
                 iconColor: isRunning ? activeColor : palette.textPrimary
-                textColor: palette.textPrimary
+                textColor: isRunning ? activeColor : palette.textPrimary
                 
                 borderWidth: 0
                 borderColor: "transparent"
                 hoverColor: palette.hoverSpotlight
 
                 onClicked: {
-                    win.det("quickshell -p " + Quickshell.env("HOME") + "/dotfiles/quickshell/snes-hub/lib/TogglMenu.qml")
+                    win.det("quickshell -p " + Quickshell.env("HOME") + "/dotfiles/quickshell/snes-hub/lib/ClockifyMenu.qml")
                 }
             }
+
+
 
             // 7. BATTERY
             BarItem {

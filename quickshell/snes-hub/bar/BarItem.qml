@@ -35,6 +35,7 @@ readonly property string shownText: toggleable ? (checked ? textOn : textOff) : 
 
     height: 34
     implicitWidth: layout.implicitWidth + 24
+    Behavior on implicitWidth { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
     property real hx: width / 2
     property real hy: height / 2
 
@@ -147,6 +148,7 @@ Rectangle {
             font.pixelSize: 14
             color: (toggleable && checked) ? checkedIconColor : root.iconColor
             Layout.alignment: Qt.AlignVCenter 
+            Behavior on color { ColorAnimation { duration: 200 } } 
         }
         Text { 
             visible: root.shownText !== ""
@@ -156,6 +158,7 @@ Rectangle {
             font.weight: 700
             color: (toggleable && checked) ? checkedTextColor : root.textColor
             Layout.alignment: Qt.AlignVCenter 
+            Behavior on color { ColorAnimation { duration: 200 } } 
         }
     }
     MouseArea {
