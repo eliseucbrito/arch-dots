@@ -249,7 +249,8 @@ PanelWindow {
                 Rectangle {
                     anchors.fill: parent
                     radius: height / 2
-                    color: Qt.rgba(launchIcon.color.r, launchIcon.color.g, launchIcon.color.b, 1)
+                    // Use theme accent color for the pulse effect
+                    color: Qt.rgba(palette.accent.r, palette.accent.g, palette.accent.b, 1)
                     opacity: launchPress.pressed ? 0.10 : (hoverLaunch.hovered ? 0.08 : 0.0)
                     Behavior on opacity { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
                 }
@@ -263,13 +264,15 @@ PanelWindow {
                         if (hoverLaunch.hovered) return win.isDarkMode ? "#89b4fa" : "#1e66f5"
                         return win.isDarkMode ? "#89b4fa" : "#1e66f5"
                     }
+
+                    
                     rotation: hoverLaunch.hovered ? -14 : 0
                     scale: hoverLaunch.hovered ? 1.20 : 1.0
                     y: hoverLaunch.hovered ? -2 : 0
+                    
                     Behavior on rotation { NumberAnimation { duration: 240; easing.type: Easing.OutBack; easing.overshoot: 1.08 } }
                     Behavior on scale { NumberAnimation { duration: 220; easing.type: Easing.OutBack; easing.overshoot: 1.08 } }
                     Behavior on y { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
-                    Behavior on color { ColorAnimation { duration: 160 } }
                 }
                 MouseArea {
                     id: launchPress
@@ -547,7 +550,7 @@ PanelWindow {
                             Rectangle {
                                 anchors.fill: parent
                                 radius: width / 2
-                                color: palette.hoverSpotlight
+                                color: (palette && palette.hoverSpotlight !== undefined) ? palette.hoverSpotlight : "#20FFFFFF"
                                 opacity: trayPress.pressed ? 1.0 : (trayPress.containsMouse ? 0.8 : 0.0)
                                 Behavior on opacity { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
                             }

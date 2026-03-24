@@ -100,52 +100,92 @@ PanelWindow {
 
     // Recent list model
     ListModel { id: recentModel }
+    ListModel { id: projectModel }
+    property var selectedProject: null
 
     // -------- API Interaction --------
+    // 1. User Actions (Start/Stop/Projects/Force Refresh)
     Process {
         id: procClient
         stdout: StdioCollector {
             onStreamFinished: {
-                isBusy = false
+                // isBusy reset handled in onExited for safety, but we process data here
                 const raw = String(text || "").trim()
                 if (!raw) return
 
                 try {
                     const data = JSON.parse(raw)
                     if (data && data.error) {
-                        currentDescription = "Error: " + data.error
+                         // Only show error in desc if it was an action
+                         if (currentDescription === "Stopping..." || timerRunning) {
+                             currentDescription = "Error: " + data.error
+                         }
+                         return
+                    }
+
+                    // Handle Project List
+                    if (Array.isArray(data)) {
+                        projectModel.clear()
+                        data.forEach(p => projectModel.append(p))
                         return
                     }
 
-                    // Handle running entry
-                    var running = data.running
-                    if (running && running.id) {
-                        timerRunning = true
-                        currentDescription = running.description || "(no description)"
-                        startTime = new Date(running.timeInterval.start)
-                        updateDuration()
-                    } else {
-                        timerRunning = false
-                        currentDescription = "No timer running"
-                        currentDuration = "00:00:00"
-                        startTime = null
-                    }
-
-                    // Handle recent list
-                    if (data.recent && Array.isArray(data.recent)) {
-                         recentModel.clear()
-                         data.recent.forEach(item => {
-                             recentModel.append({
-                                 desc: item.description || "(no description)",
-                                 // proj: item.projectName || ""
-                             })
-                         })
-                    }
+                    // Handle Status Response (from Start/Stop or explicit status)
+                    handleStatusData(data)
 
                 } catch (e) {
-                    console.error("JSON Parse error", e)
+                    console.error("Action JSON Parse error", e)
                 }
             }
+        }
+        onExited: {
+            console.log("procClient exited with code " + exitCode)
+            isBusy = false
+        }
+    }
+
+    // 2. Background Polling (Status only)
+    Process {
+        id: procPoll
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const raw = String(text || "").trim()
+                if (!raw) return
+                try {
+                    const data = JSON.parse(raw)
+                    if (!data || data.error) return
+                    handleStatusData(data)
+                } catch (e) {}
+            }
+        }
+    }
+
+    function handleStatusData(data) {
+        // Handle running entry
+        var running = data.running
+        if (running && running.id) {
+            timerRunning = true
+            currentDescription = running.description || "(no description)"
+            startTime = new Date(running.timeInterval.start)
+            updateDuration()
+        } else {
+            timerRunning = false
+            currentDescription = "No timer running"
+            currentDuration = "00:00:00"
+            startTime = null
+        }
+
+        // Handle recent list
+        if (data.recent && Array.isArray(data.recent)) {
+             recentModel.clear()
+             data.recent.forEach(item => {
+                 recentModel.append({
+                     desc: item.description || "(no description)",
+                     projName: item.projectName || "",
+                     projColor: item.projectColor || "#03a9f4",
+                     projId: item.projectId
+                 })
+             })
         }
     }
 
@@ -156,12 +196,20 @@ PanelWindow {
         procClient.command = ["python3", scriptPath].concat(args)
         procClient.running = true
     }
+    
+    function runPoll() {
+        if (procPoll.running) return
+        const scriptPath = Quickshell.env("HOME") + "/dotfiles/quickshell/snes-hub/lib/clockify_client.py"
+        procPoll.command = ["python3", scriptPath, "status"]
+        procPoll.running = true
+    }
 
     Component.onCompleted: {
         // Load cache instantly
         runClient(["status", "--cached"])
         // Then refresh live data
         Qt.callLater(() => refreshStatus())
+        Qt.callLater(() => loadProjects(false))
     }
 
     // Auto-refresh while open
@@ -170,9 +218,37 @@ PanelWindow {
         onTriggered: refreshStatus()
     }
 
-    function refreshStatus() { runClient(["status"]) }
-    function startTimer(desc) { if(desc) runClient(["start", desc]) }
-    function stopTimer() { runClient(["stop"]) }
+    function refreshStatus() { runPoll() }
+    function loadProjects(refresh) { 
+        var args = ["projects"]
+        if (refresh) args.push("--refresh")
+        runClient(args) 
+    }
+    
+    function startTimer(desc, projId) { 
+        if(!desc) return
+        
+        // Optimistic UI Update
+        timerRunning = true
+        currentDescription = desc
+        startTime = new Date()
+        currentDuration = "00:00:00"
+        
+        var args = ["start", desc]
+        if (projId) {
+             args = args.concat(["--project", projId])
+        } else if (selectedProject) {
+             args = args.concat(["--project", selectedProject.id])
+        }
+        runClient(args) 
+    }
+    function stopTimer() { 
+        // Optimistic UI Update
+        timerRunning = false
+        currentDescription = "Stopping..."
+        startTime = null
+        runClient(["stop"]) 
+    }
 
     function updateDuration() {
         if (!startTime || !timerRunning) return
@@ -283,18 +359,59 @@ PanelWindow {
                 }
             }
 
-            // Input
-            TextField {
-                id: descInput
+            // Input Area
+            property bool selectingProject: false
+            
+            RowLayout {
                 Layout.fillWidth: true
-                placeholderText: "What are you working on?"
-                font.family: fontText; font.pixelSize: 13; color: cFg
-                background: Rectangle {
-                    color: cBg; radius: 8
-                    border.width: 1; border.color: descInput.activeFocus ? cAccent : "transparent"
+                spacing: 8
+                
+                // Project Button
+                Item {
+                    implicitWidth: 36; implicitHeight: 36
+                    Layout.preferredWidth: 36; Layout.preferredHeight: 36
+                    z: 10
+                    
+                    Rectangle {
+                        id: projBtnBg
+                        anchors.fill: parent; radius: 8
+                        color: selectingProject ? cAccent : "transparent"
+                        border.width: 1
+                        border.color: selectingProject ? "transparent" : "#40808080"
+                        
+                        // Debug log to ensure this component is alive
+                        Component.onCompleted: console.log("Project Button Background Loaded")
+                    }
+
+                    Label {
+                        anchors.centerIn: parent
+                        text: ""
+                        font.family: fontIcon; font.pixelSize: 16
+                        color: selectingProject ? cCard : (selectedProject ? selectedProject.color : cFg)
+                    }
+
+                    MouseArea { 
+                        id: maProj; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            console.log("Project Button Clicked. State: " + selectingProject)
+                            if (projectModel.count === 0) loadProjects(false)
+                            selectingProject = !selectingProject
+                        }
+                    }
                 }
-                onAccepted: {
-                     if (text.length > 0) { startTimer(text); text = ""; descInput.focus = false }
+
+                TextField {
+                    id: descInput
+                    Layout.fillWidth: true
+                    placeholderText: selectedProject ? `[${selectedProject.name}] Description...` : "What are you working on?"
+                    font.family: fontText; font.pixelSize: 13; color: cFg
+                    background: Rectangle {
+                        color: cBg; radius: 8
+                        border.width: 1; border.color: descInput.activeFocus ? cAccent : "transparent"
+                    }
+                    onAccepted: {
+                         if (text.length > 0) { startTimer(text); text = ""; descInput.focus = false }
+                    }
                 }
             }
 
@@ -333,16 +450,78 @@ PanelWindow {
             }
 
             // Divider
-            Rectangle { Layout.fillWidth: true; height: 1; color: cBorder; visible: recentModel.count > 0 }
+            Rectangle { Layout.fillWidth: true; height: 1; color: cBorder; visible: true }
 
-            // Recent List
-            Label {
-                text: "Recent Tasks"
-                font.family: fontText; font.pixelSize: 11; font.weight: 700; color: cMuted
-                visible: recentModel.count > 0
+            // Header
+            RowLayout {
+                Layout.fillWidth: true
+                Label {
+                    text: selectingProject ? "Select Project" : "Recent Tasks"
+                    font.family: fontText; font.pixelSize: 11; font.weight: 700; color: cMuted
+                    Layout.fillWidth: true
+                }
+                // Clear selection button
+                Label {
+                     text: "Clear Project"
+                     font.family: fontText; font.pixelSize: 10; color: cRed
+                     visible: selectedProject !== null && !selectingProject
+                     MouseArea { anchors.fill: parent; onClicked: selectedProject = null; cursorShape: Qt.PointingHandCursor }
+                }
+                // Refresh Projects
+                Label {
+                     text: "Refresh"
+                     font.family: fontText; font.pixelSize: 10; color: cAccent
+                     visible: selectingProject
+                     MouseArea { anchors.fill: parent; onClicked: loadProjects(true); cursorShape: Qt.PointingHandCursor }
+                }
             }
 
+            // Project List
+            Item {
+                Layout.fillWidth: true
+                Layout.preferredHeight: selectingProject ? 200 : 0
+                Layout.maximumHeight: 200
+                clip: true
+                visible: height > 0
+                
+                Behavior on Layout.preferredHeight { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+
+                ListView {
+                    anchors.fill: parent
+                    model: projectModel
+                    clip: true
+                    
+                    delegate: Rectangle {
+                        width: ListView.view.width; height: 32; radius: 6
+                        color: maPItem.containsMouse ? Qt.rgba(cAccent.r, cAccent.g, cAccent.b, 0.1) : "transparent"
+                        RowLayout {
+                            anchors.fill: parent; anchors.margins: 8
+                            Rectangle { width: 8; height: 8; radius: 4; color: model.color }
+                            Label { text: model.name; color: cFg; font.family: fontText; font.pixelSize: 12; Layout.fillWidth: true }
+                        }
+                        MouseArea {
+                            id: maPItem
+                            anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                selectedProject = { id: model.id, name: model.name, color: model.color }
+                                selectingProject = false
+                            }
+                        }
+                    }
+                }
+                
+                // Empty Project State
+                Label {
+                    visible: projectModel.count === 0
+                    anchors.centerIn: parent
+                    text: "No projects found."
+                    color: cMuted; font.family: fontText; font.pixelSize: 12
+                }
+            }
+
+            // Recent List
             ListView {
+                visible: !selectingProject && recentModel.count > 0
                 Layout.fillWidth: true
                 Layout.preferredHeight: contentItem.childrenRect.height
                 model: recentModel
@@ -367,6 +546,22 @@ PanelWindow {
                             text: ""
                             font.family: fontIcon; font.pixelSize: 10; color: cMuted
                         }
+                        
+                        // Project Pill
+                        Rectangle {
+                            visible: model.projName !== ""
+                            color: model.projColor
+                            radius: 4
+                            width: pLabel.width + 10; height: 16
+                            Label { 
+                                id: pLabel
+                                anchors.centerIn: parent
+                                text: model.projName
+                                font.family: fontText; font.pixelSize: 9; font.weight: 700
+                                color: "white" // contrast might differ but white usually works on colored bg
+                            }
+                        }
+
                         Label {
                             text: model.desc
                             font.family: fontText; font.pixelSize: 12; color: cFg
@@ -383,7 +578,7 @@ PanelWindow {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: startTimer(model.desc)
+                        onClicked: startTimer(model.desc, model.projId)
                     }
                 }
             }

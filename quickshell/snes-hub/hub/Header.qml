@@ -15,7 +15,7 @@ Item {
   property string profileImage: Config.PROFILE_IMG
 
   property bool expanded: false
-  signal closeRequested()
+  signal closeRequested
   signal powerAction(string action, string label)
 
   readonly property bool _hasTheme: theme !== null

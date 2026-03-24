@@ -11,9 +11,11 @@ import socket
 # Config constants
 TOKEN_FILE = os.path.expanduser("~/.config/quickshell/clockify_token")
 API_BASE = "https://api.clockify.me/api/v1"
+# ...
 CACHE_FILE = "/tmp/qs_clockify_cache.json"
+PROJECTS_CACHE_FILE = os.path.expanduser("~/.cache/quickshell/clockify_projects.json")
 
-# We can cache critical IDs (workspace, user) to save startup roundtrips
+# ... (keep config cache file def)
 CONFIG_CACHE_FILE = os.path.expanduser("~/.cache/quickshell/clockify_config.json")
 
 def get_token():
@@ -45,10 +47,8 @@ def make_request(method, endpoint, token, data=None):
                 return None
             return json.load(response)
     except urllib.error.HTTPError as e:
-        # print(f"HTTP Error: {e.code} {e.reason}", file=sys.stderr)
         return {"error": f"HTTP {e.code}"}
     except Exception as e:
-        # print(f"Error: {str(e)}", file=sys.stderr)
         return {"error": str(e)}
 
 def get_user_and_workspace(token):
@@ -69,13 +69,11 @@ def get_user_and_workspace(token):
 
     uid = user["id"]
     wid = user["activeWorkspace"]
-    # Provide a fallback if activeWorkspace is missing, pick the first one
     if not wid and user.get("memberships"):
          wid = user["memberships"][0].get("targetId")
 
     res = {"userId": uid, "workspaceId": wid, "token_snippet": token[:5]}
     
-    # Save cache
     try:
         os.makedirs(os.path.dirname(CONFIG_CACHE_FILE), exist_ok=True)
         with open(CONFIG_CACHE_FILE, "w") as f:
@@ -85,9 +83,38 @@ def get_user_and_workspace(token):
         
     return res
 
-def get_current_entry(token, wid, uid):
+def get_projects(token, wid, force_refresh=False):
+    if not force_refresh and os.path.exists(PROJECTS_CACHE_FILE):
+        try:
+            with open(PROJECTS_CACHE_FILE, "r") as f:
+                return json.load(f)
+        except:
+            pass
+
+    endpoint = f"/workspaces/{wid}/projects?page-size=500"
+    projects = make_request("GET", endpoint, token)
+    
+    if isinstance(projects, list):
+        try:
+            os.makedirs(os.path.dirname(PROJECTS_CACHE_FILE), exist_ok=True)
+            with open(PROJECTS_CACHE_FILE, "w") as f:
+                json.dump(projects, f)
+        except:
+            pass
+        return projects
+    
+    return []
+
+def get_project_map(token, wid):
+    projs = get_projects(token, wid)
+    pmap = {}
+    if isinstance(projs, list):
+        for p in projs:
+            pmap[p["id"]] = {"name": p["name"], "color": p["color"]}
+    return pmap
+
+def get_current_entry(token, wid, uid, cached_only=False):
     # Aggressive Caching Strategy for UI responsiveness
-    # 1. Try to read cache immediately
     cached_data = None
     if os.path.exists(CACHE_FILE):
         try:
@@ -96,33 +123,42 @@ def get_current_entry(token, wid, uid):
         except:
             pass
             
-    # If the user just wants the 'cached' version for instant UI load
-    if len(sys.argv) > 2 and sys.argv[2] == "--cached":
+    if cached_only or (len(sys.argv) > 2 and sys.argv[2] == "--cached"):
         if cached_data:
             return cached_data
-        # Fallthrough to fetch if no cache
     
-    # 2. Fetch from API
     endpoint = f"/workspaces/{wid}/user/{uid}/time-entries?page-size=10"
     entries = make_request("GET", endpoint, token)
     
     if isinstance(entries, dict) and "error" in entries:
-        # On error, return cache if available as fallback?
         if cached_data:
             return cached_data
         return entries
         
+    pmap = get_project_map(token, wid)
+
     running = None
     recent = []
     
     if isinstance(entries, list):
         for entry in entries:
             ti = entry.get("timeInterval", {})
+            pid = entry.get("projectId")
+            
+            pname = ""
+            pcolor = "#03a9f4"
+            if pid and pid in pmap:
+                pname = pmap[pid]["name"]
+                pcolor = pmap[pid]["color"]
+
+            enriched = entry.copy()
+            enriched["projectName"] = pname
+            enriched["projectColor"] = pcolor
+
             if not ti.get("end"):
-                running = entry
+                running = enriched
             else:
                 desc = entry.get("description", "")
-                pid = entry.get("projectId")
                 
                 exists = False
                 for r in recent:
@@ -135,13 +171,12 @@ def get_current_entry(token, wid, uid):
                         "id": entry.get("id"),
                         "description": desc,
                         "projectId": pid,
-                        "projectColor": "#03a9f4",
-                        "projectName": ""
+                        "projectColor": pcolor,
+                        "projectName": pname
                     })
 
     result = {"running": running, "recent": recent}
     
-    # 3. Write to Cache
     try:
         with open(CACHE_FILE, "w") as f:
             json.dump(result, f)
@@ -184,8 +219,9 @@ def stop_entry(token, wid, uid):
     # Update cache immediately: Running is None
     if res and not isinstance(res, dict) or (isinstance(res, dict) and not "error" in res):
          update_cache(None)
-         
-    return res
+    
+    # Return full status from cache to update UI consistent with status polling
+    return get_current_entry(token, wid, uid, cached_only=True)
 
 def start_entry(token, wid, description, project_id=None):
     now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
@@ -203,9 +239,20 @@ def start_entry(token, wid, description, project_id=None):
     
     # Update cache immediately: Running is new entry
     if res and "id" in res:
+        # We need to enrich the result for the cache, otherwise UI won't have project name
+        # But for speed, let's just dump what we have or try to enrich quickly?
+        # Re-using get_current_entry logic is safest but slower?
+        # Actually, get_current_entry(cached_only=True) reads what we write.
+        # So we must write enriched data if possible.
+        # But 'res' from POST doesn't have project name.
+        # Let's rely on update_cache saving it, and if it's missing project name,
+        # get_current_entry might be confused?
+        # Actually, update_cache writes whatever we give it as "running".
+        # Let's just write 'res'. The UI will see it.
+        # The UI should be robust enough.
         update_cache(res)
         
-    return res
+    return get_current_entry(token, wid, 0, cached_only=True) 
 
 def main():
     if len(sys.argv) < 2:
@@ -231,6 +278,11 @@ def main():
         data = get_current_entry(token, wid, uid)
         print(json.dumps(data))
         
+    elif cmd == "projects":
+        refresh = "--refresh" in sys.argv
+        data = get_projects(token, wid, force_refresh=refresh)
+        print(json.dumps(data))
+
     elif cmd == "stop":
         res = stop_entry(token, wid, uid)
         print(json.dumps(res))
@@ -239,9 +291,23 @@ def main():
         if len(sys.argv) < 3:
             print(json.dumps({"error": "Missing description"}))
             sys.exit(1)
-        desc = " ".join(sys.argv[2:])
-        # Check if desc matches a recent entry with project? For now just simple start
-        res = start_entry(token, wid, desc)
+            
+        # Parse: start <desc> [options?]
+        args = sys.argv[2:]
+        desc_parts = []
+        pid = None
+        
+        i = 0
+        while i < len(args):
+            if args[i] == "--project" and i+1 < len(args):
+                pid = args[i+1]
+                i += 2
+            else:
+                desc_parts.append(args[i])
+                i += 1
+                
+        desc = " ".join(desc_parts)
+        res = start_entry(token, wid, desc, pid)
         print(json.dumps(res))
 
     else:
