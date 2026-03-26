@@ -10,7 +10,7 @@ import "./components"
 ShellRoot {
     id: root
 
-    property string configPath: Quickshell.env("HOME") + "/.config/quickshell"
+    property string configPath: Quickshell.env("HOME") + "/.config/quickshell/v2"
     property string homePath: Quickshell.env("HOME")
     property string wallpaperPath: homePath + "/wallpapers"
     property string cachePath: homePath + "/.cache"
@@ -607,12 +607,20 @@ ShellRoot {
         onTriggered: refreshBluetooth()
     }
 
-    Bar {}
-    Dashboard {}
-    MusicPanel {}
-    WifiPanel {}
-    BluetoothPanel {}
-    LauncherPanel {}
+    Variants {
+        model: Quickshell.screens
+        Scope {
+            id: screenScope
+            property var modelData
+
+            Bar { screen: screenScope.modelData }
+            Dashboard { screen: screenScope.modelData }
+            MusicPanel { screen: screenScope.modelData }
+            WifiPanel { screen: screenScope.modelData }
+            BluetoothPanel { screen: screenScope.modelData }
+            LauncherPanel { screen: screenScope.modelData }
+        }
+    }
 
     IpcHandler {
         target: "launcher"
