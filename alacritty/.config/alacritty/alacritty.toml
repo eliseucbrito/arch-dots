@@ -5,6 +5,8 @@ TERM = "xterm-256color"
 
 [terminal]
 osc52 = "CopyPaste"
+
+[terminal.shell]
 program = "/usr/bin/fish"
 args = ["--login"]
 
