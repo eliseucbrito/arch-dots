@@ -18,4 +18,5 @@ depends=(
     'fzf'
     'fd'
     'bat'
+    'zellij'
 )
