@@ -59,14 +59,6 @@ if [ "$SHELL" != "$(which fish)" ]; then
     chsh -s $(which fish)
 fi
 
-echo "Setting up Fisher and plugins..."
-fish -c "
-    if not functions -q fisher
-        curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
-    end
-    fisher update
-"
-
 # --- GNU Stow Symlinks ---
 echo "=> Applying symlinks with GNU Stow..."
 cd "$DOTFILES_DIR"
@@ -75,5 +67,14 @@ stow -t ~ quickshell
 stow -t ~ nvim
 stow -t ~ alacritty
 stow -t ~ fish
+
+
+echo "Setting up Fisher and plugins..."
+fish -c "
+    if not functions -q fisher
+        curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
+    end
+    fisher update
+"
 
 echo "=> Setup finished successfully! Your configurations are linked."
