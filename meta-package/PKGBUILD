@@ -1,0 +1,21 @@
+pkgname=my-base-setup
+pkgver=1.0
+pkgrel=1
+pkgdesc="Metapackage with all my needed tools"
+arch=('any')
+depends=(
+    'docker'
+    'neovim'
+    'git'
+    'firefox-bin'
+    'antigravity'
+    'hyprmoncfg'
+    'gemini-cli-git'
+    'github-copilot-cli'
+    'qbittorrent-qt5'
+    'fish'
+    'curl'
+    'fzf'
+    'fd'
+    'bat'
+)
