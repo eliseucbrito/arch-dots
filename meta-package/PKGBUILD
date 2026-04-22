@@ -19,4 +19,7 @@ depends=(
     'fd'
     'bat'
     'zellij'
+    'sshm-bin'
+    'quickshell-git'
+    'dbeaver-ee'
 )
