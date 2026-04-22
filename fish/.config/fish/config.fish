@@ -71,12 +71,11 @@ alias sys-edit="nvim ~/dotfiles/meta-package/PKGBUILD" # Quick access to metapac
 # Tool Initialization and Plugins
 # =============================================================================
 
-# Initialize Zoxide (Smart directory navigation)
-if type -q zoxide
-    zoxide init fish | source
-end
-
 # Fish fzf integration (Keybindings)
 # If using the fzf.fish plugin, these variables enhance the preview visual
 set -gx fzf_preview_dir_cmd eza --all --color=always
 set -gx fzf_fd_opts --hidden --exclude=.git
+
+if status is-interactive
+    eval (zellij setup --generate-auto-start fish | string collect)
+end
