@@ -1,0 +1,41 @@
+services:
+  glance:
+    container_name: glance
+    image: glanceapp/glance
+    restart: always
+    volumes:
+      - ./config:/app/config
+      - ./assets:/app/assets
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 9999:8080
+    env_file: .env
+    depends_on:
+      - rsshub
+
+  rsshub:
+    container_name: rsshub
+    image: diygod/rsshub
+    restart: always
+    ports:
+      - 1200:1200
+    environment:
+      NODE_ENV: production
+      CACHE_TYPE: redis
+      REDIS_URL: "redis://rsshub-redis:6379/"
+      TWITTER_USERNAME: ${TWITTER_USERNAME}
+      TWITTER_PASSWORD: ${TWITTER_PASSWORD}
+      TWITTER_PHONE_OR_EMAIL: ${TWITTER_PHONE_OR_EMAIL:-}
+      TWITTER_AUTHENTICATION_SECRET: ${TWITTER_AUTHENTICATION_SECRET:-}
+    depends_on:
+      - rsshub-redis
+
+  rsshub-redis:
+    container_name: rsshub-redis
+    image: redis:alpine
+    restart: always
+    volumes:
+      - rsshub-redis-data:/data
+
+volumes:
+  rsshub-redis-data:

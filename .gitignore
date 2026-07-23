@@ -1,0 +1,48 @@
+jellyfin
+
+# Environment files
+**/.env
+**/.env.*
+!.env.template
+!.env.example
+
+# API tokens
+**/*_token
+**/*token*
+
+# Backups
+assets/config-backups/
+
+# Large binary / data files
+quickshell/.config/quickshell/whisker/data/emoji_en-US.json
+
+# Machine-specific runtime state (regenerated locally)
+.config/quickshell/v2/app_usage.json
+.config/quickshell/v3/app_usage.json
+
+# Machine-specific hardware layout (monitor serials)
+.config/hypr/monitors.conf
+
+# Assets that shouldn't be tracked
+*.bak
+*.bak.*
+
+# Install artifacts
+install.log
+
+# Claude machine-specific settings
+.claude/settings.local.json
+.claude-cincoders/settings.local.json
+
+# Machine-specific shell state
+.config/fish/fish_variables
+.config/fish/functions/*
+!.config/fish/functions/claude.fish
+.config/fish/conf.d/
+.config/fish/completions/
+
+# Omarchy dynamic theme (created by `omarchy theme set`)
+.config/omarchy/current/
+
+# NLP isolated environment
+nlp-lab/

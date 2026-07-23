@@ -1,0 +1,9 @@
+pkgname=my-base-setup
+pkgver=3.0
+pkgrel=1
+pkgdesc="Bootstrap metapackage — installs base-devel + git needed to build yay"
+arch=('any')
+depends=(
+  'base-devel'
+  'git'
+)

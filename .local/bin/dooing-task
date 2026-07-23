@@ -1,0 +1,147 @@
+#!/bin/bash
+# dooing-task — manage the shared "Claude backlog" used together with the
+# dooing.nvim plugin. Writes a dooing-compatible JSON array so the same file
+# can be opened in Neovim (`:DooingClaude` / <leader>tc).
+#
+# Storage: $DOOING_CLAUDE_DB (default ~/.local/share/dooing/claude_backlog.json)
+#
+# Usage:
+#   dooing-task add <text> [-p prio[,prio]] [--due YYYY-MM-DD]
+#   dooing-task list [--all]        # pending by default; --all includes done
+#   dooing-task done <index>        # mark task complete (index from `list`)
+#   dooing-task undone <index>      # unmark
+#   dooing-task progress <index>    # toggle in-progress flag
+#   dooing-task rm <index>          # delete a task
+#   dooing-task clear-done          # remove all completed tasks
+#
+# Tag a task with #word in the text to set its category (filterable in dooing).
+
+set -euo pipefail
+
+DB="${DOOING_CLAUDE_DB:-$HOME/.local/share/dooing/claude_backlog.json}"
+mkdir -p "$(dirname "$DB")"
+[ -f "$DB" ] || printf '[]' >"$DB"
+
+die() {
+  echo "dooing-task: $1" >&2
+  exit 1
+}
+
+write_db() {
+  # read filter from stdin, apply to DB atomically
+  local filter="$1"
+  shift
+  jq "$@" "$filter" "$DB" >"$DB.tmp" && mv "$DB.tmp" "$DB"
+}
+
+require_index() {
+  local n="$1"
+  [[ "$n" =~ ^[0-9]+$ ]] || die "index must be a number (see 'dooing-task list')"
+  local count
+  count=$(jq 'length' "$DB")
+  ((n >= 1 && n <= count)) || die "index $n out of range (1..$count)"
+}
+
+cmd="${1:-list}"
+[ $# -gt 0 ] && shift || true
+
+case "$cmd" in
+add)
+  text=""
+  priorities=""
+  due=""
+  while [ $# -gt 0 ]; do
+    case "$1" in
+    -p | --priorities)
+      priorities="$2"
+      shift 2
+      ;;
+    --due)
+      due="$2"
+      shift 2
+      ;;
+    *)
+      text="${text:+$text }$1"
+      shift
+      ;;
+    esac
+  done
+  [ -n "$text" ] || die "usage: dooing-task add <text> [-p prio] [--due YYYY-MM-DD]"
+
+  id="$(date +%s)_$RANDOM"
+  created="$(date +%s)"
+  category="$(printf '%s' "$text" | grep -oP '(?<=#)\w+' | head -1 || true)"
+
+  prio_json="null"
+  if [ -n "$priorities" ]; then
+    prio_json="$(printf '%s' "$priorities" | jq -R 'split(",")')"
+  fi
+
+  due_json="null"
+  if [ -n "$due" ]; then
+    due_epoch="$(date -d "$due 23:59:59" +%s 2>/dev/null)" || die "invalid --due date: $due"
+    due_json="$due_epoch"
+  fi
+
+  write_db '. += [$task]' \
+    --argjson task "$(jq -n \
+      --arg id "$id" --arg text "$text" --arg cat "$category" \
+      --argjson created "$created" --argjson prio "$prio_json" --argjson due "$due_json" \
+      '{
+        id: $id, text: $text, done: false, in_progress: false,
+        category: $cat, created_at: $created, notes: "",
+        depth: 0
+      }
+      + (if $prio == null then {} else {priorities: $prio} end)
+      + (if $due  == null then {} else {due_at: $due} end)')"
+  echo "Added: $text"
+  ;;
+
+list)
+  show_all=false
+  [ "${1:-}" = "--all" ] && show_all=true
+  jq -r --argjson all "$show_all" '
+    to_entries
+    | map(select($all or (.value.done | not)))
+    | if length == 0 then "  (no tasks)" else
+        .[] | "\(.key + 1)\t" +
+          (if .value.done then "[x]" elif .value.in_progress then "[~]" else "[ ]" end) +
+          " \(.value.text)"
+      end
+  ' "$DB" | column -t -s $'\t' 2>/dev/null || cat
+  ;;
+
+done | undone)
+  require_index "${1:-}"
+  val=$([ "$cmd" = "done" ] && echo true || echo false)
+  write_db ".[$(( $1 - 1 ))].done = $val | .[$(( $1 - 1 ))].in_progress = false"
+  echo "Marked #$1 as $cmd"
+  ;;
+
+progress)
+  require_index "${1:-}"
+  write_db ".[$(( $1 - 1 ))].in_progress = (.[$(( $1 - 1 ))].in_progress | not)"
+  echo "Toggled in-progress on #$1"
+  ;;
+
+rm | delete)
+  require_index "${1:-}"
+  text=$(jq -r ".[$(( $1 - 1 ))].text" "$DB")
+  write_db "del(.[$(( $1 - 1 ))])"
+  echo "Removed: $text"
+  ;;
+
+clear-done)
+  removed=$(jq '[.[] | select(.done)] | length' "$DB")
+  write_db '[.[] | select(.done | not)]'
+  echo "Removed $removed completed task(s)"
+  ;;
+
+help | -h | --help)
+  sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+  ;;
+
+*)
+  die "unknown command '$cmd' (try 'dooing-task help')"
+  ;;
+esac

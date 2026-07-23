@@ -1,0 +1,35 @@
+#!/bin/bash
+# Wrapper that extends omarchy-menu-keybindings with Neovim plugin keybindings
+
+ORIGINAL="/home/ecb/.local/share/omarchy/bin/omarchy-menu-keybindings"
+
+dooing_entries() {
+  local fmt="%-35s → %s\n"
+  printf "$fmt" "<leader>td"        "[Dooing] Toggle todo window"
+  printf "$fmt" "<leader>tc"        "[Dooing] Open Claude backlog (shared AI tasks)"
+  printf "$fmt" "i  (in Dooing)"    "[Dooing] New todo"
+  printf "$fmt" "x  (in Dooing)"    "[Dooing] Toggle todo complete"
+  printf "$fmt" "d  (in Dooing)"    "[Dooing] Delete todo"
+  printf "$fmt" "D  (in Dooing)"    "[Dooing] Delete all completed"
+  printf "$fmt" "e  (in Dooing)"    "[Dooing] Edit todo"
+  printf "$fmt" "/  (in Dooing)"    "[Dooing] Search todos"
+  printf "$fmt" "t  (in Dooing)"    "[Dooing] Toggle tags"
+  printf "$fmt" "H  (in Dooing)"    "[Dooing] Add due date"
+  printf "$fmt" "r  (in Dooing)"    "[Dooing] Remove due date"
+  printf "$fmt" "c  (in Dooing)"    "[Dooing] Clear filter"
+  printf "$fmt" "q  (in Dooing)"    "[Dooing] Close window"
+  printf "$fmt" "?  (in Dooing)"    "[Dooing] Toggle help"
+}
+
+all_output() {
+  bash "$ORIGINAL" --print
+  dooing_entries
+}
+
+if [[ $1 == "--print" || $1 == "-p" ]]; then
+  all_output
+else
+  monitor_height=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .height')
+  menu_height=$((monitor_height * 40 / 100))
+  all_output | walker --dmenu -p 'Keybindings' --width 800 --height "$menu_height"
+fi

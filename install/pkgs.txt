@@ -1,0 +1,104 @@
+# ========================
+# Productivity
+# ========================
+chromium
+libreoffice-fresh
+nautilus
+obsidian
+tmux
+stow
+zoxide
+tldr
+ripgrep
+eza
+bat
+fd
+fzf
+
+# ========================
+# Development
+# ========================
+neovim
+git
+github-cli
+lazygit
+lazydocker
+docker
+docker-compose
+docker-buildx
+nodejs-lts-iron
+npm
+pnpm
+deno
+go
+rust
+python
+starship
+jq
+curl
+github-copilot-cli
+zellij
+glab
+quickshell
+dbeaver-ee
+antigravity
+hyprmoncfg
+gemini-cli
+sshm-bin
+figma-linux
+
+# ========================
+# Media
+# ========================
+mpv
+obs-studio
+yt-dlp
+ffmpeg
+imv
+playerctl
+pamixer
+
+# ========================
+# Gaming
+# ========================
+steam
+lutris
+wine
+wine-gecko
+wine-mono
+winetricks
+proton-ge-custom-bin
+gamemode
+
+# ========================
+# Desktop Environment
+# ========================
+hyprland
+waybar
+walker
+vicinae-bin
+uwsm
+swayosd
+mako
+brightnessctl
+wl-clipboard
+
+# ========================
+# Terminal Emulators
+# ========================
+alacritty
+kitty
+ghostty
+
+# ========================
+# System & Utilities
+# ========================
+btop
+fastfetch
+
+# ========================
+# Shell & Utilities
+# ========================
+fish
+qbittorrent-qt5
+firefox-bin

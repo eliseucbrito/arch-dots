@@ -1,0 +1,7 @@
+# Run custom startup scripts at the end of each boot.
+#
+# Scripts in this directory are sourced at the boot-autostart phase,
+# after Autostart and theme-set have completed.
+#
+# Sample: weather.sample
+# Note: The .sample extension prevents execution; rename to .sh to enable.

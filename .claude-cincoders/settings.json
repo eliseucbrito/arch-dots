@@ -1,0 +1,51 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//home/ecb/.claude/**)"
+    ],
+    "defaultMode": "default"
+  },
+  "model": "sonnet",
+  "statusLine": {
+    "type": "command",
+    "command": "/home/ecb/.local/bin/claude-powerline-safe --style=powerline",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "dx@ykdojo": true,
+    "claude-powerline@claude-powerline": true,
+    "skill-creator@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "ykdojo": {
+      "source": {
+        "source": "github",
+        "repo": "ykdojo/claude-code-tips"
+      }
+    },
+    "claude-powerline": {
+      "source": {
+        "source": "github",
+        "repo": "Owloops/claude-powerline"
+      }
+    },
+    "impeccable": {
+      "source": {
+        "source": "github",
+        "repo": "pbakaus/impeccable"
+      }
+    }
+  },
+  "alwaysThinkingEnabled": false,
+  "effortLevel": "high",
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
+  },
+  "theme": "dark",
+  "editorMode": "normal",
+  "preferredNotifChannel": "ghostty",
+  "remoteControlAtStartup": false,
+  "inputNeededNotifEnabled": false,
+  "voiceEnabled": true
+}
