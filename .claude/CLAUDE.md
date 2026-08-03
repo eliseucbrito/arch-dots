@@ -79,3 +79,23 @@ Applies when drafting articles, blog posts, LinkedIn content, or any long-form w
 - **Open with empathy hooks**, not grandiose claims. Patterns I use: *Muito se fala em X...*, *Quem nunca, né?*, *Se você se encontra neste cenário, então o que vou trazer aqui é pra você.*
 - **Sign personal essays and longer posts with `Love to you all`.**
 - **Pragmatism over radicalism.** Acknowledge both sides of an argument, then take a measured position. Avoid the radicals on either end.
+
+## Terminal Visualization Preferences
+
+When running inspection commands or showing file contents:
+
+- Use `bat` instead of `cat` for displaying files with line numbers.
+- Use `eza --tree` instead of `find` or `ls -R` when explaining directory structures.
+- Use `delta` or `git diff` for code diffs.
+- Keep outputs concise and formatted for CLI visual pagers.
+
+## CodeGraph
+
+In repositories indexed by CodeGraph (a `.codegraph/` directory exists at the repo root), reach for it BEFORE grep/find or reading files when you need to understand or locate code:
+
+- **MCP tool** (when available): `codegraph_explore` answers most code questions in one call — the relevant symbols' verbatim source plus the call paths between them, including dynamic-dispatch hops grep can't follow. Name a file or symbol in the query to read its current line-numbered source. If it's listed but deferred, load it by name via tool search.
+- **Shell** (always works): `codegraph explore "<symbol names or question>"` prints the same output.
+
+If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is the user's decision.
+
+@RTK.md
