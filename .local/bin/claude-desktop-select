@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ACCOUNTS_FILE="$HOME/.config/claude/accounts"
+
+if [[ ! -f "$ACCOUNTS_FILE" ]]; then
+    yad --error --title="Claude Desktop" \
+        --text="Arquivo de contas não encontrado:\n$ACCOUNTS_FILE" 2>/dev/null
+    exit 1
+fi
+
+mapfile -t accounts < <(grep -v '^\s*#' "$ACCOUNTS_FILE" | grep -v '^\s*$')
+
+if [[ ${#accounts[@]} -eq 0 ]]; then
+    yad --error --title="Claude Desktop" \
+        --text="Nenhuma conta configurada em $ACCOUNTS_FILE" 2>/dev/null
+    exit 1
+fi
+
+list_args=()
+for name in "${accounts[@]}"; do
+    list_args+=("$name")
+done
+
+choice=$(yad --list \
+    --title="Claude Desktop" \
+    --text="Selecione a conta Claude:" \
+    --column="Conta" \
+    --width=300 --height=200 \
+    --button="Entrar:0" \
+    --button="Cancelar:1" \
+    "${list_args[@]}" 2>/dev/null | tr -d '|') || exit 0
+
+[[ -z "$choice" ]] && exit 0
+
+profile=$(echo "$choice" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+default_profile=$(grep -v '^\s*#' "$ACCOUNTS_FILE" | grep -v '^\s*$' | head -1 | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+
+# The first account in the file maps to the default Electron userData (~/.config/Claude).
+# Additional accounts use --profile <name>, which isolates to ~/.config/Claude-<name>.
+if [[ "$profile" == "$default_profile" ]]; then
+    exec /usr/bin/claude-desktop "$@"
+else
+    exec /usr/bin/claude-desktop --profile "$profile" "$@"
+fi

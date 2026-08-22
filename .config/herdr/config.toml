@@ -1,0 +1,121 @@
+onboarding = false
+[theme]
+name = "nord"
+auto_switch = false
+light_name = "catppuccin-latte"
+dark_name = "catppuccin"
+
+[terminal]
+default_shell = "fish"
+shell_mode = "non_login"
+new_cwd = "follow"
+
+[keys]
+prefix = "ctrl+b"
+
+# Pane navigation (prefix + vim keys) + direct ctrl+alt chords
+focus_pane_left = ["prefix+h", "ctrl+alt+h"]
+focus_pane_down = ["prefix+j", "ctrl+alt+j"]
+focus_pane_up = ["prefix+k", "ctrl+alt+k"]
+focus_pane_right = ["prefix+l", "ctrl+alt+l"]
+
+# Tab navigation
+next_tab = ["prefix+n", "ctrl+alt+]"]
+previous_tab = ["prefix+p", "ctrl+alt+["]
+new_tab = ["prefix+c", "ctrl+alt+c"]
+close_tab = "prefix+shift+x"
+
+# Workspace navigation
+workspace_picker = "prefix+w"
+new_workspace = "prefix+shift+n"
+close_workspace = "prefix+shift+d"
+next_workspace = "ctrl+alt+down"
+previous_workspace = "ctrl+alt+up"
+
+# Splits
+split_vertical = ["prefix+v", "ctrl+alt+d"]
+split_horizontal = ["prefix+minus", "ctrl+alt+shift+d"]
+
+# Pane ops
+zoom = ["prefix+z", "ctrl+alt+z"]
+close_pane = "prefix+x"
+swap_pane_left = "prefix+shift+h"
+swap_pane_down = "prefix+shift+j"
+swap_pane_up = "prefix+shift+k"
+swap_pane_right = "prefix+shift+l"
+
+# Agent navigation
+next_agent = ["prefix+a", "ctrl+alt+a", "ctrl+shift+down"]
+previous_agent = ["prefix+shift+a", "ctrl+alt+shift+a", "ctrl+shift+up"]
+focus_agent = "prefix+alt+1..9"
+
+# Session
+detach = "prefix+q"
+toggle_sidebar = "prefix+b"
+help = "prefix+?"
+
+[[keys.command]]
+key = "prefix+alt+g"
+type = "pane"
+command = "lazygit"
+description = "run lazygit"
+
+[ui]
+sidebar_width = 32
+sidebar_min_width = 18
+sidebar_max_width = 36
+sidebar_collapsed_mode = "compact"
+mouse_capture = true
+confirm_close = true
+prompt_new_tab_name = true
+pane_borders = true
+pane_gaps = true
+hide_tab_bar_when_single_tab = true
+agent_panel_sort = "priority"
+
+show_agent_labels_on_pane_borders = true
+[ui.toast]
+delivery = "system"
+delay_seconds = 1
+
+[ui.toast.herdr]
+position = "bottom-right"
+
+[ui.toast.clipboard]
+enabled = true
+position = "bottom-center"
+
+[ui.sound]
+enabled = true
+
+[advanced]
+scrollback_limit_bytes = 10485760
+
+[session]
+resume_agents_on_restore = true
+
+[update]
+channel = "stable"
+version_check = true
+manifest_check = true
+
+## --------- PLUGINS ---------------
+[[keys.command]]              # open in a split beside your work
+key = "prefix+f"
+type = "shell"
+command = "herdr plugin action invoke open-file-viewer --plugin herdr-file-viewer"
+
+[[keys.command]]
+key = "alt+r"
+type = "plugin_action"
+command = "persiyanov.reviewr.toggle"   # <plugin_id>.<action_id> — note the id, not the name
+
+[[keys.command]]
+key = "prefix+t"
+type = "shell"
+command = "herdr plugin action invoke taskle.open-board"
+
+[experimental]
+pane_history = true
+switch_ascii_input_source_in_prefix = true
+kitty_graphics = true

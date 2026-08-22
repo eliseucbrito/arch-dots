@@ -1,44 +1,88 @@
 - name: Home
-  # Optionally, if you only have a single page you can hide the desktop navigation for a cleaner look
-  # hide-desktop-navigation: true
   columns:
     - size: small
       widgets:
-        - type: calendar
-          first-day-of-week: monday
+        - type: custom-api
+          title: Google Calendar
+          cache: 15m
+          template: |
+            {{
+              $token := newRequest "https://oauth2.googleapis.com/token"
+                | withHeader "Content-Type" "application/x-www-form-urlencoded"
+                | withStringBody "client_id=${GOOGLE_CLIENT_ID}&client_secret=${GOOGLE_CLIENT_SECRET}&refresh_token=${GOOGLE_REFRESH_TOKEN}&grant_type=refresh_token"
+                | getResponse
+            }}
+            {{ if ne $token.Response.StatusCode 200 }}
+              <p class="color-subdue">Falha ao obter token: {{ $token.Response.Status }}</p>
+            {{ else }}
+              {{ $accessToken := $token.JSON.String "access_token" }}
+              {{ $nowtime := now | formatTime "rfc3339" }}
+              {{ $future := offsetNow "720h" | formatTime "rfc3339" }}
+              {{
+                $events := newRequest "https://www.googleapis.com/calendar/v3/calendars/primary/events"
+                  | withParameter "timeMin" $nowtime
+                  | withParameter "timeMax" $future
+                  | withParameter "singleEvents" "true"
+                  | withParameter "orderBy" "startTime"
+                  | withHeader "Authorization" (print "Bearer " $accessToken)
+                  | getResponse
+              }}
+              {{ if ne $events.Response.StatusCode 200 }}
+                <p class="color-subdue">Falha ao buscar eventos: {{ $events.Response.Status }}</p>
+              {{ else }}
+                <ul class="list list-gap-10 collapsible-container" data-collapse-after="6">
+                  {{ range $events.JSON.Array "items" }}
+                  {{ $start := .String "start.dateTime" }}
+                  {{ $isAllDay := eq $start "" }}
+                  {{ if $isAllDay }}
+                    {{ $start = print (.String "start.date") | parseLocalTime "DateOnly" }}
+                  {{ else }}
+                    {{ $start = $start | parseTime "rfc3339" }}
+                  {{ end }}
+                  <li>
+                    <a class="color-primary-if-not-visited text-truncate block" href="https://calendar.google.com/calendar/u/0" target="_blank" rel="noreferrer">{{ .String "summary" }}</a>
+                    <div class="size-h6 color-highlight">
+                      {{ $start | formatTime "Mon, Jan 2 · 3:04 PM" }}
+                    </div>
+                  </li>
+                  {{ end }}
+                </ul>
+              {{ end }}
+            {{ end }}
 
-        - type: rss
-          limit: 20
-          collapse-after: 5
-          cache: 12h
-          feeds:
-            - url: https://selfh.st/rss/
-              title: selfh.st
-            - url: https://rss.app/feeds/SEU_FEED_ID.xml
-              title: leandronsp
-            - url: https://newsletter.pragmaticengineer.com/feed
-              title: The Pramatic Engineer
-            - url: https://aleatorio.dev.br/feed.xml
-              title: Aleatório Dev
-            # - url: https://ciechanow.ski/atom.xml
-            # - url: https://www.joshwcomeau.com/rss.xml
-            #   title: Josh Comeau
-            # - url: https://samwho.dev/rss.xml
-            # - url: https://ishadeed.com/feed.xml
-            #   title: Ahmad Shadeed
+        - type: weather
+          location: Recife, Brazil
+          units: metric
+          hour-format: 24h
 
-        - type: rss
-          title: X / Twitter
-          limit: 20
-          collapse-after: 5
-          cache: 1h
-          feeds:
-            - url: http://rsshub:1200/twitter/user/SUBSTITUA_PELO_PERFIL
-              title: SUBSTITUA_PELO_PERFIL
+        - type: bookmarks
+          groups:
+            - title: Email
+              links:
+                - title: Gmail Pessoal
+                  url: https://mail.google.com/mail/u/0/
+                  icon: si:gmail
+                - title: Gmail CIn
+                  url: https://mail.google.com/mail/u/1/
+                  icon: si:gmail
 
-        - type: twitch-channels
-          channels:
-            - mch_agg
+            - title: Agenda
+              links:
+                - title: Calendar Pessoal
+                  url: https://calendar.google.com/calendar/u/0/r
+                  icon: si:googlecalendar
+                - title: Calendar CIn
+                  url: https://calendar.google.com/calendar/u/1/r
+                  icon: si:googlecalendar
+
+            - title: GitLab
+              links:
+                - title: IACP
+                  url: https://gitlab.cin.ufpe.br/iacp
+                  icon: si:gitlab
+                - title: Cincoders
+                  url: https://gitlab.cin.ufpe.br/cincoders
+                  icon: si:gitlab
 
     - size: full
       widgets:
@@ -106,13 +150,6 @@
 
     - size: small
       widgets:
-        - type: weather
-          location: Recife, Brazil
-          units: metric # alternatively "imperial"
-          hour-format: 12h # alternatively "24h"
-          # Optionally hide the location from being displayed in the widget
-          # hide-location: true
-
         - type: markets
           markets:
             - symbol: SPY
@@ -128,9 +165,6 @@
 
         - type: releases
           cache: 1d
-          # Without authentication the Github API allows for up to 60 requests per hour. You can create a
-          # read-only token from your Github account settings and use it here to increase the limit.
-          # token: ...
           repositories:
             - glanceapp/glance
             - go-gitea/gitea
@@ -138,35 +172,14 @@
             - syncthing/syncthing
 
         - type: custom-api
-          title: Latest Community Widgets
-          cache: 1d
-          url: https://raw.githubusercontent.com/glanceapp/community-widgets/refs/heads/main/registry/widgets.json
-          template: |
-            <ul class="list list-gap-14 collapsible-container" data-collapse-after="3">
-              {{ $widgets := .JSON.Array "" | sortByTime "time_added" "rfc3339" "desc" }}
-              {{ if gt (len $widgets) 10 }}
-                {{ $widgets = slice $widgets 0 10 }}
-              {{ end }}
-              {{ range $widgets }}
-              <li>
-                <a class="size-h4 block text-truncate color-primary-if-not-visited" href="https://github.com/glanceapp/community-widgets/blob/main/widgets/{{ .String "directory" }}/README.md" target="_blank" rel="noreferrer">{{ .String "title" }}</a>
-                <p class="text-truncate-2-lines margin-top-3">{{ .String "description" }}</p>
-                <ul class="list-horizontal-text margin-top-3">
-                  <li {{ .String "time_added" | parseRelativeTime "rfc3339" }}></li>
-                  <li>{{ .String "author" }}</li>
-                </ul>
-              </li>
-              {{ end }}
-            </ul>
-        - type: custom-api
           title: Trending Repositories
-          cache: 24h 
+          cache: 24h
           url: 'https://api.ossinsight.io/v1/trends/repos/?period=past_week&language=All'
           template: |
             <ul class="list list-gap-10 collapsible-container" data-collapse-after="3">
               {{ range .JSON.Array "data.rows"}}
                 <li>
-                  <a class="color-primary-if-not-visited" href="https://github.com/{{ .String "repo_name" }}">{{ .String "repo_name" }}</a> 
+                  <a class="color-primary-if-not-visited" href="https://github.com/{{ .String "repo_name" }}">{{ .String "repo_name" }}</a>
                   <ul class="list-horizontal-text">
                       <li class="color-highlight"> {{.String "primary_language"}} </li>
 
@@ -211,24 +224,6 @@
                   </li>
                 {{ end }}
               </ul>
-
-        - type: bookmarks
-          groups:
-            - links:
-                - title: Gmail
-                  url: https://mail.google.com/mail/u/0/
-                - title: Jellyfin
-                  url: http://192.168.1.X:8096
-                  icon: video
-                - title: Tdarr Dashboard
-                  url: http://192.168.1.X:8265
-                  icon: cpu
-                - title: Portainer # Caso use para gerenciar os containers
-                  url: http://192.168.1.X:9443
-                  icon: container
-                - title: YouTube Live Status
-                  url: https://youtube.com/c/SEU_CANAL/live
-                  icon: youtube
 
         - type: html
           title: OpenCode Usage

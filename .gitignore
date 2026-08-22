@@ -32,7 +32,6 @@ install.log
 
 # Claude machine-specific settings
 .claude/settings.local.json
-.claude-cincoders/settings.local.json
 
 # Machine-specific shell state
 .config/fish/fish_variables

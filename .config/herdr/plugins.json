@@ -1,0 +1,810 @@
+[
+  {
+    "plugin_id": "bcihanc.claude-session-title",
+    "name": "Claude Session Title",
+    "version": "0.1.0",
+    "min_herdr_version": "0.7.0",
+    "description": "Reports the Claude Code session title (/rename or auto summary) as the herdr pane metadata title",
+    "manifest_path": "/home/ecb/dotfiles/.config/herdr/plugins/github/bcihanc.claude-session-title-f6f56b36975c/herdr-plugin.toml",
+    "plugin_root": "/home/ecb/dotfiles/.config/herdr/plugins/github/bcihanc.claude-session-title-f6f56b36975c",
+    "enabled": true,
+    "platforms": [
+      "linux",
+      "macos"
+    ],
+    "actions": [
+      {
+        "id": "install",
+        "title": "Install Claude Code hook",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "sh",
+          "scripts/install.sh"
+        ]
+      },
+      {
+        "id": "status",
+        "title": "Show hook installation status",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "sh",
+          "scripts/status.sh"
+        ]
+      },
+      {
+        "id": "uninstall",
+        "title": "Uninstall Claude Code hook",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "sh",
+          "scripts/uninstall.sh"
+        ]
+      }
+    ],
+    "source": {
+      "kind": "github",
+      "owner": "bcihanc",
+      "repo": "herdr-claude-session-title",
+      "resolved_commit": "b718bb1daa7c575978faf29339bc7596ae103483",
+      "managed_path": "/home/ecb/.config/herdr/plugins/github/bcihanc.claude-session-title-f6f56b36975c",
+      "installed_unix_ms": 1785530081893
+    }
+  },
+  {
+    "plugin_id": "herdr-file-viewer",
+    "name": "herdr-file-viewer",
+    "version": "1.12.0",
+    "min_herdr_version": "0.7.0",
+    "description": "A git-aware, read-only file viewer: a keyboard-driven TUI in a herdr split pane.",
+    "manifest_path": "/home/ecb/dotfiles/.config/herdr/plugins/github/herdr-file-viewer-c993314e2614/herdr-plugin.toml",
+    "plugin_root": "/home/ecb/dotfiles/.config/herdr/plugins/github/herdr-file-viewer-c993314e2614",
+    "enabled": true,
+    "platforms": [
+      "linux",
+      "macos",
+      "windows"
+    ],
+    "build": [
+      {
+        "platforms": [
+          "linux",
+          "macos"
+        ],
+        "command": [
+          "/bin/sh",
+          "scripts/fetch-or-build.sh"
+        ]
+      },
+      {
+        "platforms": [
+          "windows"
+        ],
+        "command": [
+          "powershell",
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "scripts/fetch-or-build.ps1"
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "open-file-viewer",
+        "title": "Open file viewer",
+        "description": "Open the git-aware file viewer in a split pane beside the current work.",
+        "platforms": [
+          "linux",
+          "macos"
+        ],
+        "command": [
+          "bash",
+          "scripts/open-file-viewer.sh"
+        ]
+      },
+      {
+        "id": "open-file-viewer-tab",
+        "title": "Open file viewer (tab)",
+        "description": "Open the git-aware file viewer in its own tab (switch to it if already open).",
+        "platforms": [
+          "linux",
+          "macos"
+        ],
+        "command": [
+          "bash",
+          "scripts/open-file-viewer-tab.sh"
+        ]
+      },
+      {
+        "id": "open-file-viewer-tab-windows",
+        "title": "Open file viewer (tab)",
+        "description": "Open the git-aware file viewer in its own tab (switch to it if already open).",
+        "platforms": [
+          "windows"
+        ],
+        "command": [
+          "powershell",
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-Command",
+          "$b=$env:HERDR_BIN_PATH; if(-not $b){$b='herdr'}; $p=((& $b plugin list --json|ConvertFrom-Json).result.plugins|?{$_.plugin_id -eq 'herdr-file-viewer'}).plugin_root; if($p -and $p.StartsWith('\\\\?\\')){$p=$p.Substring(4)}; & (Join-Path (Join-Path $p 'scripts') 'open-file-viewer-tab.ps1')"
+        ]
+      },
+      {
+        "id": "open-file-viewer-windows",
+        "title": "Open file viewer",
+        "description": "Open the git-aware file viewer in a split pane beside the current work.",
+        "platforms": [
+          "windows"
+        ],
+        "command": [
+          "powershell",
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-Command",
+          "$b=$env:HERDR_BIN_PATH; if(-not $b){$b='herdr'}; $p=((& $b plugin list --json|ConvertFrom-Json).result.plugins|?{$_.plugin_id -eq 'herdr-file-viewer'}).plugin_root; if($p -and $p.StartsWith('\\\\?\\')){$p=$p.Substring(4)}; & (Join-Path (Join-Path $p 'scripts') 'open-file-viewer.ps1')"
+        ]
+      }
+    ],
+    "panes": [
+      {
+        "id": "file-viewer",
+        "title": "Files",
+        "placement": "split",
+        "command": [
+          "./target/release/herdr-file-viewer"
+        ]
+      }
+    ],
+    "source": {
+      "kind": "github",
+      "owner": "smarzban",
+      "repo": "herdr-file-viewer",
+      "resolved_commit": "1d4a790e9cb88b63db7e88b3ddb82a03ab59751a",
+      "managed_path": "/home/ecb/.config/herdr/plugins/github/herdr-file-viewer-c993314e2614",
+      "installed_unix_ms": 1783986150397
+    }
+  },
+  {
+    "plugin_id": "official.browser",
+    "name": "Browser",
+    "version": "0.1.0",
+    "min_herdr_version": "0.7.4",
+    "description": "Open and inspect real browser pages from Herdr.",
+    "manifest_path": "/home/ecb/dotfiles/.config/herdr/plugins/github/official.browser-ff2a44eccae9/herdr-plugin.toml",
+    "plugin_root": "/home/ecb/dotfiles/.config/herdr/plugins/github/official.browser-ff2a44eccae9",
+    "enabled": true,
+    "platforms": [
+      "linux",
+      "macos"
+    ],
+    "actions": [
+      {
+        "id": "open-localhost",
+        "title": "Open localhost in browser",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bun",
+          "run",
+          "src/actions/open-localhost.ts"
+        ]
+      },
+      {
+        "id": "status",
+        "title": "Browser status",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bun",
+          "run",
+          "src/actions/status.ts"
+        ]
+      }
+    ],
+    "panes": [
+      {
+        "id": "browser",
+        "title": "Browser",
+        "placement": "split",
+        "command": [
+          "bun",
+          "run",
+          "src/viewer.ts"
+        ]
+      }
+    ],
+    "link_handlers": [
+      {
+        "id": "localhost",
+        "title": "Open in Herdr Browser",
+        "pattern": "^https?://(localhost|127\\.0\\.0\\.1|\\[::1\\])(:[0-9]+)?([/?#].*)?$",
+        "action": "open-localhost"
+      }
+    ],
+    "source": {
+      "kind": "github",
+      "owner": "ogulcancelik",
+      "repo": "herdr-browser",
+      "resolved_commit": "be6888b71cf4eb5939ee79a746bd1a1c22ade046",
+      "managed_path": "/home/ecb/.config/herdr/plugins/github/official.browser-ff2a44eccae9",
+      "installed_unix_ms": 1785729405334
+    }
+  },
+  {
+    "plugin_id": "persiyanov.reviewr",
+    "name": "reviewr",
+    "version": "0.26.2",
+    "min_herdr_version": "0.7.5",
+    "description": "Review agent-written diffs beside the chat and add line comments to the agent input.",
+    "manifest_path": "/home/ecb/dotfiles/.config/herdr/plugins/github/persiyanov.reviewr-e87b654a74f8/herdr-plugin.toml",
+    "plugin_root": "/home/ecb/dotfiles/.config/herdr/plugins/github/persiyanov.reviewr-e87b654a74f8",
+    "enabled": true,
+    "platforms": [
+      "macos",
+      "linux"
+    ],
+    "build": [
+      {
+        "command": [
+          "bash",
+          "herdr/install.sh"
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "close",
+        "title": "reviewr: close sidebar",
+        "contexts": [
+          "pane",
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "herdr/sidebar.sh",
+          "close"
+        ]
+      },
+      {
+        "id": "open",
+        "title": "reviewr: open sidebar",
+        "contexts": [
+          "pane",
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "herdr/sidebar.sh",
+          "open"
+        ]
+      },
+      {
+        "id": "toggle",
+        "title": "reviewr: toggle sidebar",
+        "contexts": [
+          "pane",
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "herdr/sidebar.sh",
+          "toggle"
+        ]
+      }
+    ],
+    "events": [
+      {
+        "on": "worktree.created",
+        "command": [
+          "bash",
+          "herdr/sidebar.sh",
+          "auto-open"
+        ]
+      }
+    ],
+    "panes": [
+      {
+        "id": "sidebar",
+        "title": "reviewr",
+        "placement": "split",
+        "command": [
+          "sh",
+          "-c",
+          "exec \"$HERDR_PLUGIN_ROOT/bin/herdr-reviewr\""
+        ]
+      }
+    ],
+    "source": {
+      "kind": "github",
+      "owner": "persiyanov",
+      "repo": "herdr-reviewr",
+      "resolved_commit": "1068100ec5553f51f7527f60fb08055d7f2fd29e",
+      "managed_path": "/home/ecb/.config/herdr/plugins/github/persiyanov.reviewr-e87b654a74f8",
+      "installed_unix_ms": 1785440683002
+    }
+  },
+  {
+    "plugin_id": "rjyo.window-title-sync",
+    "name": "Window Title Sync",
+    "version": "0.1.0",
+    "min_herdr_version": "0.7.0",
+    "description": "Sync the outer terminal title to the focused Herdr workspace, tab, and agent session.",
+    "manifest_path": "/home/ecb/dotfiles/.config/herdr/plugins/github/rjyo.window-title-sync-aa963fbbc3d9/herdr-plugin.toml",
+    "plugin_root": "/home/ecb/dotfiles/.config/herdr/plugins/github/rjyo.window-title-sync-aa963fbbc3d9",
+    "enabled": true,
+    "platforms": [
+      "macos",
+      "linux"
+    ],
+    "actions": [
+      {
+        "id": "refresh",
+        "title": "Refresh terminal title",
+        "contexts": [
+          "workspace",
+          "tab",
+          "pane"
+        ],
+        "command": [
+          "bun",
+          "sync-title.js"
+        ]
+      }
+    ],
+    "events": [
+      {
+        "on": "pane.agent_detected",
+        "command": [
+          "bun",
+          "sync-title.js"
+        ]
+      },
+      {
+        "on": "pane.agent_status_changed",
+        "command": [
+          "bun",
+          "sync-title.js"
+        ]
+      },
+      {
+        "on": "pane.closed",
+        "command": [
+          "bun",
+          "sync-title.js"
+        ]
+      },
+      {
+        "on": "pane.created",
+        "command": [
+          "bun",
+          "sync-title.js"
+        ]
+      },
+      {
+        "on": "pane.focused",
+        "command": [
+          "bun",
+          "sync-title.js"
+        ]
+      },
+      {
+        "on": "pane.moved",
+        "command": [
+          "bun",
+          "sync-title.js"
+        ]
+      },
+      {
+        "on": "tab.focused",
+        "command": [
+          "bun",
+          "sync-title.js"
+        ]
+      },
+      {
+        "on": "tab.renamed",
+        "command": [
+          "bun",
+          "sync-title.js"
+        ]
+      },
+      {
+        "on": "workspace.focused",
+        "command": [
+          "bun",
+          "sync-title.js"
+        ]
+      },
+      {
+        "on": "workspace.renamed",
+        "command": [
+          "bun",
+          "sync-title.js"
+        ]
+      },
+      {
+        "on": "workspace.updated",
+        "command": [
+          "bun",
+          "sync-title.js"
+        ]
+      }
+    ],
+    "source": {
+      "kind": "github",
+      "owner": "rjyo",
+      "repo": "herdr-window-title-sync",
+      "resolved_commit": "b07f1140b7308d66487b2f4be546c0c7db065569",
+      "managed_path": "/home/ecb/.config/herdr/plugins/github/rjyo.window-title-sync-aa963fbbc3d9",
+      "installed_unix_ms": 1785445380146
+    }
+  },
+  {
+    "plugin_id": "tab-smart-rename",
+    "name": "Smart Rename",
+    "version": "0.1.1",
+    "min_herdr_version": "0.7.0",
+    "description": "Context-aware names for Herdr workspaces and task tabs.",
+    "manifest_path": "/home/ecb/code/herdr-tab-smart-rename/herdr-plugin.toml",
+    "plugin_root": "/home/ecb/code/herdr-tab-smart-rename",
+    "enabled": true,
+    "platforms": [
+      "linux",
+      "macos"
+    ],
+    "build": [
+      {
+        "command": [
+          "bun",
+          "install",
+          "--production",
+          "--frozen-lockfile"
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "check-ai",
+        "title": "Smart Rename: check AI config",
+        "description": "Validate the provider and naming prompt without making a request.",
+        "contexts": [
+          "global",
+          "workspace",
+          "tab",
+          "pane"
+        ],
+        "command": [
+          "sh",
+          "src/run-bun.sh",
+          "src/cli.ts",
+          "check-ai"
+        ]
+      },
+      {
+        "id": "configure-ai",
+        "title": "Smart Rename: configure AI",
+        "description": "Open the private AI provider configuration.",
+        "contexts": [
+          "global",
+          "workspace",
+          "tab",
+          "pane"
+        ],
+        "command": [
+          "sh",
+          "src/run-bun.sh",
+          "src/cli.ts",
+          "configure-ai"
+        ]
+      },
+      {
+        "id": "configure-prompt",
+        "title": "Smart Rename: configure prompt",
+        "description": "Open the private naming prompt.",
+        "contexts": [
+          "global",
+          "workspace",
+          "tab",
+          "pane"
+        ],
+        "command": [
+          "sh",
+          "src/run-bun.sh",
+          "src/cli.ts",
+          "configure-prompt"
+        ]
+      },
+      {
+        "id": "rename-all",
+        "title": "Smart Rename: all tabs",
+        "description": "Reclaim and rename every tab sequentially.",
+        "contexts": [
+          "global",
+          "workspace",
+          "tab",
+          "pane"
+        ],
+        "command": [
+          "sh",
+          "src/run-bun.sh",
+          "src/cli.ts",
+          "all"
+        ]
+      },
+      {
+        "id": "rename-now",
+        "title": "Smart Rename: current tab",
+        "description": "Reclaim and rename the current tab now.",
+        "contexts": [
+          "workspace",
+          "tab",
+          "pane"
+        ],
+        "command": [
+          "sh",
+          "src/run-bun.sh",
+          "src/cli.ts",
+          "rename-now"
+        ]
+      },
+      {
+        "id": "reset-tab",
+        "title": "Smart Rename: reset tab",
+        "description": "Clear the current tab's manual lock and evaluate it.",
+        "contexts": [
+          "tab",
+          "pane"
+        ],
+        "command": [
+          "sh",
+          "src/run-bun.sh",
+          "src/cli.ts",
+          "reset-tab"
+        ]
+      },
+      {
+        "id": "reset-workspace",
+        "title": "Smart Rename: reset workspace",
+        "description": "Clear the current workspace's manual lock and evaluate it.",
+        "contexts": [
+          "workspace",
+          "tab",
+          "pane"
+        ],
+        "command": [
+          "sh",
+          "src/run-bun.sh",
+          "src/cli.ts",
+          "reset-workspace"
+        ]
+      },
+      {
+        "id": "start",
+        "title": "Smart Rename: start",
+        "description": "Start the detached Smart Rename worker.",
+        "contexts": [
+          "global",
+          "workspace"
+        ],
+        "command": [
+          "sh",
+          "src/run-bun.sh",
+          "src/cli.ts",
+          "start"
+        ]
+      },
+      {
+        "id": "status",
+        "title": "Smart Rename: status",
+        "description": "Report worker status.",
+        "contexts": [
+          "global",
+          "workspace"
+        ],
+        "command": [
+          "sh",
+          "src/run-bun.sh",
+          "src/cli.ts",
+          "status"
+        ]
+      },
+      {
+        "id": "stop",
+        "title": "Smart Rename: stop",
+        "description": "Stop the Smart Rename worker.",
+        "contexts": [
+          "global",
+          "workspace"
+        ],
+        "command": [
+          "sh",
+          "src/run-bun.sh",
+          "src/cli.ts",
+          "stop"
+        ]
+      }
+    ],
+    "panes": [
+      {
+        "id": "prompt-config",
+        "title": "Smart Rename Prompt",
+        "description": "Edit the private naming prompt.",
+        "placement": "overlay",
+        "command": [
+          "sh",
+          "src/run-bun.sh",
+          "src/configure.ts",
+          "prompt"
+        ]
+      },
+      {
+        "id": "provider-config",
+        "title": "Smart Rename AI",
+        "description": "Edit the private OpenAI-compatible provider configuration.",
+        "placement": "overlay",
+        "command": [
+          "sh",
+          "src/run-bun.sh",
+          "src/configure.ts"
+        ]
+      }
+    ],
+    "source": {
+      "kind": "local"
+    }
+  },
+  {
+    "plugin_id": "taskle",
+    "name": "Taskle",
+    "version": "0.1.0",
+    "min_herdr_version": "0.7.5",
+    "description": "Per-project, local-only task list for agent panes (urgent/important matrix + tags)",
+    "manifest_path": "/home/ecb/projects/personal/taskle/herdr-plugin.toml",
+    "plugin_root": "/home/ecb/projects/personal/taskle",
+    "enabled": true,
+    "build": [
+      {
+        "command": [
+          "make",
+          "build"
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "open-board",
+        "title": "Open Taskle board",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "sh",
+          "-c",
+          "exec \"$HERDR_PLUGIN_ROOT/bin/taskle\" herdr open-board"
+        ]
+      }
+    ],
+    "panes": [
+      {
+        "id": "board",
+        "title": "Taskle - Project Tasks",
+        "placement": "split",
+        "command": [
+          "sh",
+          "-c",
+          "exec \"$HERDR_PLUGIN_ROOT/bin/taskle\" herdr tui"
+        ]
+      }
+    ],
+    "source": {
+      "kind": "local"
+    },
+    "warnings": [
+      "manifest does not declare platforms; platform support unknown"
+    ]
+  },
+  {
+    "plugin_id": "worktrunk",
+    "name": "Worktrunk",
+    "version": "0.1.0",
+    "min_herdr_version": "0.7.0",
+    "description": "Switch, create, or remove git worktrees via worktrunk",
+    "manifest_path": "/home/ecb/dotfiles/.config/herdr/plugins/github/worktrunk-7fb519583f31/herdr-plugin.toml",
+    "plugin_root": "/home/ecb/dotfiles/.config/herdr/plugins/github/worktrunk-7fb519583f31",
+    "enabled": true,
+    "platforms": [
+      "macos",
+      "linux"
+    ],
+    "actions": [
+      {
+        "id": "open",
+        "title": "Worktree: switch / create from default branch",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "-c",
+          "cwd=$(jq -r '.workspace_cwd // .focused_pane_cwd' <<<\"$HERDR_PLUGIN_CONTEXT_JSON\"); exec \"$HERDR_BIN_PATH\" plugin pane open --plugin \"$HERDR_PLUGIN_ID\" --entrypoint picker-default --placement split --direction down --cwd \"$cwd\" --focus"
+        ]
+      },
+      {
+        "id": "open-current",
+        "title": "Worktree: switch / create from current branch",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "-c",
+          "cwd=$(jq -r '.workspace_cwd // .focused_pane_cwd' <<<\"$HERDR_PLUGIN_CONTEXT_JSON\"); exec \"$HERDR_BIN_PATH\" plugin pane open --plugin \"$HERDR_PLUGIN_ID\" --entrypoint picker-current --placement split --direction down --cwd \"$cwd\" --focus"
+        ]
+      },
+      {
+        "id": "remove",
+        "title": "Worktree: remove",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "-c",
+          "cwd=$(jq -r '.workspace_cwd // .focused_pane_cwd' <<<\"$HERDR_PLUGIN_CONTEXT_JSON\"); exec \"$HERDR_BIN_PATH\" plugin pane open --plugin \"$HERDR_PLUGIN_ID\" --entrypoint remover --placement split --direction down --cwd \"$cwd\" --focus"
+        ]
+      }
+    ],
+    "panes": [
+      {
+        "id": "picker-current",
+        "title": "Worktrunk — current branch",
+        "placement": "split",
+        "command": [
+          "bash",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/picker.sh\" --create-base=current"
+        ]
+      },
+      {
+        "id": "picker-default",
+        "title": "Worktrunk — default branch",
+        "placement": "split",
+        "command": [
+          "bash",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/picker.sh\" --create-base=default"
+        ]
+      },
+      {
+        "id": "remover",
+        "title": "Worktrunk — remove",
+        "placement": "split",
+        "command": [
+          "bash",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/remove.sh\""
+        ]
+      }
+    ],
+    "source": {
+      "kind": "github",
+      "owner": "devashish2203",
+      "repo": "herdr-worktrunk",
+      "resolved_commit": "a3107ca566bafcd463bc138007a0c01051970784",
+      "managed_path": "/home/ecb/.config/herdr/plugins/github/worktrunk-7fb519583f31",
+      "installed_unix_ms": 1785445134232
+    }
+  }
+]

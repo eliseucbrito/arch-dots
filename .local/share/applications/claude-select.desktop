@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Claude (selecionar conta)
+Comment=Claude AI Desktop - selecionar conta ao abrir
+Exec=claude-desktop-select %u
+Icon=claude-desktop
+Type=Application
+Terminal=false
+Categories=Office;Utility;Chat;
+MimeType=x-scheme-handler/claude;
+StartupWMClass=claude

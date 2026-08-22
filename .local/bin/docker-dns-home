@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+
+# =========================================================
+# Destrava o DNS do Docker/Minikube quando não há VPN do CIn ativa.
+#
+# Contexto: /etc/docker/daemon.json aponta "dns": ["10.99.0.1"] — o
+# DNSStubListenerExtra do systemd-resolved em docker0 (ver
+# ~/dotfiles/TROUBLESHOOTING.md § Bug #1). Isso é necessário para os
+# containers herdarem o split-DNS do CIn quando a VPN está ativa.
+#
+# Sem VPN (ex.: em casa), esse stub falha com SERVFAIL para containers
+# e para o node do Minikube — mesmo o host resolvendo normalmente.
+# Tentativas de corrigir via `resolvectl dns/domain docker0 ...` não
+# resolveram: systemd-resolved nunca atribui scope de resolução a
+# docker0 (Current Scopes fica "none" mesmo com DNS Server configurado),
+# então o fix precisa ser no próprio daemon.json, bypassando o resolved.
+#
+# Este script troca só o campo "dns" do daemon.json (backup do arquivo
+# original) e reinicia o Docker. Isso derruba o Minikube (ele roda como
+# container) — precisa de `minikube start -p cin-dev` depois.
+#
+# Uso:
+#   docker-dns-home            # modo casa: dns -> resolvers públicos
+#   docker-dns-home revert     # modo CIn (padrão, obrigatório com VPN)
+#   docker-dns-home status     # mostra o "dns" atual do daemon.json
+# =========================================================
+
+set -euo pipefail
+
+DAEMON_JSON="/etc/docker/daemon.json"
+BACKUP="/etc/docker/daemon.json.cin-default"
+HOME_DNS='["1.1.1.1", "8.8.8.8"]'
+CIN_DNS='["10.99.0.1"]'
+
+require_jq() {
+    command -v jq >/dev/null 2>&1 || { echo "jq não encontrado (sudo pacman -S jq)" >&2; exit 1; }
+}
+
+cmd_status() {
+    echo "=> $DAEMON_JSON:"
+    cat "$DAEMON_JSON"
+}
+
+set_dns() {
+    local dns_json="$1" label="$2"
+    require_jq
+
+    if [ ! -f "$BACKUP" ]; then
+        sudo cp "$DAEMON_JSON" "$BACKUP"
+    fi
+
+    local tmp
+    tmp="$(mktemp)"
+    jq --argjson dns "$dns_json" '.dns = $dns' "$DAEMON_JSON" > "$tmp"
+    sudo cp "$tmp" "$DAEMON_JSON"
+    rm -f "$tmp"
+
+    echo "=> daemon.json atualizado para modo $label:"
+    cat "$DAEMON_JSON"
+
+    echo "=> Reiniciando Docker (derruba o Minikube — suba de novo com 'minikube start -p cin-dev')..."
+    sudo systemctl restart docker
+
+    echo "=> OK."
+}
+
+cmd_apply() {
+    set_dns "$HOME_DNS" "casa (sem VPN)"
+    echo "   Rode '$0 revert' antes de conectar na VPN do CIn."
+}
+
+cmd_revert() {
+    set_dns "$CIN_DNS" "CIn (padrão)"
+}
+
+case "${1:-apply}" in
+    apply)  cmd_apply ;;
+    revert) cmd_revert ;;
+    status) cmd_status ;;
+    *) echo "Uso: $0 [apply|revert|status]" >&2; exit 1 ;;
+esac

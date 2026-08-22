@@ -1,0 +1,69 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(uv run pytest *)",
+      "Bash(uv run rtk pytest *)",
+      "Bash(npm run test *)",
+      "Bash(npm run rtk test *)",
+      "Bash(npm test *)",
+      "Bash(npm test)",
+      "Bash(yarn test *)",
+      "Bash(pnpm test *)",
+      "Bash(pnpm run test *)",
+      "mcp__codegraph__*"
+    ]
+  },
+  "autoCompactEnabled": true,
+  "autoCompactWindow": 150000,
+  "effortLevel": "medium",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "bash '/home/ecb/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10,
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "codegraph prompt-hook"
+          }
+        ]
+      }
+    ]
+  },
+  "skillListingBudgetFraction": 0.005,
+  "skillOverrides": {
+    "find-skills": "user-invocable-only"
+  },
+  "skipWorkflowUsageWarning": true,
+  "statusLine": {
+    "type": "command",
+    "command": "ccstatusline",
+    "padding": 0,
+    "refreshInterval": 10
+  },
+  "theme": "dark"
+}

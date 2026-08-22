@@ -1,0 +1,7 @@
+# Claude accounts configuration
+# One account name per line. Lines starting with # are ignored.
+# The config directory used will be: ~/.claude-<name-lowercased>
+# Example: "Work" → ~/.claude-work
+
+Work
+Personal

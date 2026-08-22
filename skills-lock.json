@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "improve-codebase-architecture": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
+      "computedHash": "4a02bd01030d5ed6a5040c0382b9f56fbf02c7c8b8fd68aa1bcc55628963f760"
+    },
+    "lgpd": {
+      "source": "sushegaad/claude-skills-governance-risk-and-compliance",
+      "sourceType": "github",
+      "skillPath": "plugins/lgpd/skills/lgpd/SKILL.md",
+      "computedHash": "3d0f5f58edd573cc6ee2edfe7f481a597d0487e346101fd306fa563c24f78a28"
+    }
+  }
+}

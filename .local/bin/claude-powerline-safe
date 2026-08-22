@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Runs claude-powerline via bun so the statusline never depends on the
+# per-directory node resolved by mise shims (untrusted/uninstalled .mise.toml
+# would otherwise break the statusline in some directories).
+set -euo pipefail
+
+# Surface nono sandbox isolation as an on/off flag (NONO_CAP_FILE holds a
+# random /tmp path, unfit for display) for the "env" statusline segment. Set
+# unconditionally so the segment shows "off" too, not just hide when unset.
+if [[ -n "${NONO_CAP_FILE:-}" ]]; then
+  export NONO_SANDBOX_ACTIVE="on"
+else
+  export NONO_SANDBOX_ACTIVE="off"
+fi
+
+CP_JS="$HOME/.cache/.bun/install/global/node_modules/@owloops/claude-powerline/bin/claude-powerline"
+
+# Fall back to whatever is on PATH if the bun global path moved.
+if [[ -f "$CP_JS" ]]; then
+  exec /usr/bin/bun "$CP_JS" "$@"
+else
+  exec claude-powerline "$@"
+fi
