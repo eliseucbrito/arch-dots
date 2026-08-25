@@ -4,47 +4,55 @@
     "style": "minimal",
     "charset": "unicode",
     "colorCompatibility": "auto",
-    "autoWrap": false,
+    "autoWrap": true,
     "padding": 1,
     "lines": [
       {
         "segments": {
           "directory": {
             "enabled": true,
-            "style": "fish"
+            "style": "basename"
           },
           "git": {
             "enabled": true,
-            "showAheadBehind": true,
             "showSha": false,
             "showWorkingTree": false,
             "showOperation": false,
             "showTag": false,
             "showTimeSinceCommit": false,
-            "showStashCount": false,
+            "showStashCount": true,
             "showUpstream": false,
-            "showRepoName": false
+            "showRepoName": false,
+            "showAheadBehind": true
           },
           "model": {
             "enabled": true
           },
-          "session": {
-            "enabled": false,
-            "type": "tokens",
-            "costSource": "calculated",
-            "showUnits": true,
-            "showIcon": false
-          },
-          "context": {
+          "env": {
             "enabled": true,
-            "displayStyle": "text",
-            "showPercentageOnly": true,
-            "percentageMode": "used",
-            "autocompactBuffer": 33000
+            "variable": "NONO_SANDBOX_ACTIVE",
+            "prefix": "SANDBOX"
           },
           "today": {
             "enabled": false,
-            "type": "cost",
+            "type": "tokens",
+            "showUnits": true
+          },
+          "context": {
+            "enabled": false,
+            "showPercentageOnly": false,
+            "displayStyle": "line",
+            "autocompactBuffer": 33000,
+            "percentageMode": "remaining"
+          },
+          "agent": {
+            "enabled": false,
+            "showLabel": false
+          },
+          "session": {
+            "enabled": false,
+            "type": "breakdown",
+            "costSource": "calculated",
             "showUnits": true
           },
           "block": {
@@ -76,49 +84,45 @@
             "showLinesAdded": true,
             "showLinesRemoved": true
           },
-          "env": {
-            "enabled": true,
-            "variable": "NONO_SANDBOX_ACTIVE",
-            "prefix": "SANDBOX"
-          },
-          "agent": {
-            "enabled": false,
-            "showLabel": true
-          },
           "thinking": {
             "enabled": false,
             "showEnabled": true,
             "showEffort": true
           },
           "cacheTimer": {
+            "enabled": false
+          },
+          "outputStyle": {
             "enabled": false,
-            "displayMode": "elapsed"
+            "showLabel": false,
+            "hideDefault": false
           }
         }
       },
       {
         "segments": {
+          "thinking": {
+            "enabled": true,
+            "showEnabled": true,
+            "showEffort": true,
+            "showIcon": true
+          },
+          "context": {
+            "enabled": true,
+            "showPercentageOnly": true,
+            "displayStyle": "text",
+            "autocompactBuffer": 150000,
+            "percentageMode": "used"
+          },
           "block": {
             "enabled": true,
             "type": "both",
             "burnType": "tokens",
             "displayStyle": "text"
           },
-          "session": {
-            "enabled": true,
-            "type": "tokens",
-            "costSource": "calculated",
-            "showUnits": true
-          },
-          "today": {
-            "enabled": true,
-            "type": "tokens",
-            "showUnits": true,
-            "showIcon": true
-          },
           "weekly": {
             "enabled": true,
-            "displayStyle": "geometric"
+            "displayStyle": "text"
           },
           "directory": {
             "enabled": false,
@@ -127,16 +131,41 @@
           "model": {
             "enabled": false
           },
+          "metrics": {
+            "enabled": false,
+            "showResponseTime": true,
+            "showLastResponseTime": true,
+            "showDuration": true,
+            "showMessageCount": true,
+            "showLinesAdded": true,
+            "showLinesRemoved": true
+          },
+          "env": {
+            "enabled": false,
+            "variable": ""
+          },
           "git": {
             "enabled": false,
             "showSha": false,
-            "showWorkingTree": false,
+            "showAheadBehind": true,
+            "showWorkingTree": true,
             "showOperation": false,
             "showTag": false,
             "showTimeSinceCommit": false,
             "showStashCount": false,
             "showUpstream": false,
             "showRepoName": false
+          },
+          "session": {
+            "enabled": false,
+            "type": "tokens",
+            "costSource": "calculated",
+            "showUnits": true
+          },
+          "today": {
+            "enabled": false,
+            "type": "cost",
+            "showUnits": true
           },
           "version": {
             "enabled": false
@@ -148,28 +177,40 @@
             "enabled": false,
             "showIdLabel": true
           },
-          "context": {
-            "enabled": false,
-            "showPercentageOnly": false,
-            "displayStyle": "text",
-            "autocompactBuffer": 33000
-          },
-          "env": {
-            "enabled": false,
-            "variable": ""
-          },
           "agent": {
             "enabled": false,
             "showLabel": false
           },
-          "thinking": {
-            "enabled": false,
-            "showEnabled": true,
-            "showEffort": true
-          },
           "cacheTimer": {
             "enabled": false,
             "displayMode": "elapsed"
+          },
+          "outputStyle": {
+            "enabled": false,
+            "showLabel": false,
+            "hideDefault": false
+          }
+        }
+      },
+      {
+        "segments": {
+          "directory": {
+            "enabled": false,
+            "style": "basename"
+          },
+          "model": {
+            "enabled": false
+          },
+          "session": {
+            "enabled": true,
+            "type": "breakdown",
+            "costSource": "calculated",
+            "showUnits": true
+          },
+          "outputStyle": {
+            "enabled": false,
+            "showLabel": false,
+            "hideDefault": false
           }
         }
       }
@@ -178,18 +219,11 @@
   },
   "budget": {
     "session": {
-      "warningThreshold": 80,
-      "amount": 100000,
-      "type": "tokens",
-      "showPercentage": true,
-      "showValue": true
+      "warningThreshold": 80
     },
     "today": {
-      "warningThreshold": 0,
-      "amount": 0,
-      "type": "tokens",
-      "showPercentage": false,
-      "showValue": false
+      "warningThreshold": 80,
+      "amount": 50
     },
     "block": {
       "warningThreshold": 80,

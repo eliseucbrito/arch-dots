@@ -61,7 +61,7 @@
   "skipWorkflowUsageWarning": true,
   "statusLine": {
     "type": "command",
-    "command": "ccstatusline",
+    "command": "claude-powerline",
     "padding": 0,
     "refreshInterval": 10
   },
