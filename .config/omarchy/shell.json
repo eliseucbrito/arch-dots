@@ -1,6 +1,6 @@
 {
   "bar": {
-    "centerAnchor": "omarchy.clock",
+    "centerAnchor": "tmn73.calendar",
     "layout": {
       "center": [
         {
@@ -13,13 +13,27 @@
           "id": "omarchy.weather"
         },
         {
-          "id": "omarchy.system-update"
+          "id": "io.github.sumdahl.media"
         },
         {
-          "format": "dddd HH:mm",
-          "formatAlt": "d MMMM 'W'ww yyyy",
-          "id": "omarchy.clock",
-          "verticalFormat": "HH\n—\nmm"
+          "id": "tmn73.calendar",
+          "format": "ddd d MMM h:mm AP",
+          "hiddenCalendars": [
+            "c_53ba404193c8488c16e80e01e50c063e0d2d29cb81c5cf97b171efa4cb4179fc@group.calendar.google.com",
+            "eliseubrito776@gmail.com",
+            "c_b6b99b88571b82eedf6e7a04dce138835cf8d45ed20b254f08d770d7328281c8@group.calendar.google.com",
+            "en.brazilian#holiday@group.v.calendar.google.com",
+            "c_bed4898b47d8514cfaf2d67adaf3be70caabe169eae976052130cef33e26f98d@group.calendar.google.com",
+            "c_d8e3c315732e837f44773c62fa793117f3a2d4763949fa2599e9603d43a0a081@group.calendar.google.com",
+            "c_1c68f4840c665a2f6d015d1345756646481bc55fab3696156f89a2886eed704b@group.calendar.google.com",
+            "c_2d7f118a1d883703e396a2e8e27562af79b4f8bb803193168d9af3eb79fd57b1@group.calendar.google.com",
+            "c_61f363d0a583152a2b2e7b0f2e1b4a7ba38a18a1678289d1b1d232072f4cb0e4@group.calendar.google.com",
+            "h6qrnjvrpbog97g8mrn0pgdmhe926lq9@import.calendar.google.com"
+          ],
+          "announceLeadMinutes": 30
+        },
+        {
+          "id": "omarchy.system-update"
         }
       ],
       "left": [
@@ -28,6 +42,12 @@
         },
         {
           "id": "omarchy.workspaces"
+        },
+        {
+          "id": "bibek.focusd"
+        },
+        {
+          "id": "io.github.gardnmi.window-shelf"
         }
       ],
       "right": [
@@ -35,7 +55,28 @@
           "id": "omarchy.tray"
         },
         {
+          "id": "gpdenny.linear"
+        },
+        {
+          "id": "emils.localhost"
+        },
+        {
+          "id": "io.github.fabean.herdr"
+        },
+        {
+          "id": "jankeesvw.notification-center"
+        },
+        {
+          "id": "wyatt.lull"
+        },
+        {
+          "id": "crmne.hyprmoncfg"
+        },
+        {
           "id": "omarchy.tailscale"
+        },
+        {
+          "id": "ecb.vpn"
         },
         {
           "id": "omarchy.agents"
@@ -58,12 +99,29 @@
       ]
     },
     "position": "top",
-    "transparent": false
+    "transparent": true
   },
+  "cloneSourceRestores": [
+    "io.github.sirjul1337.lock-explorer"
+  ],
+  "disabledPlugins": [
+    "omarchy.lock"
+  ],
   "idle": {
     "lock": 300,
     "screensaver": 150
   },
-  "plugins": [],
+  "plugins": [
+    {
+      "design": "poster",
+      "id": "io.github.sirjul1337.lock-explorer"
+    },
+    {
+      "id": "blizl.voxtype-osd"
+    },
+    {
+      "id": "expose.window-overview"
+    }
+  ],
   "version": 1
 }

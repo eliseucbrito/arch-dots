@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "ecb.vpn",
+  "name": "CIn VPN",
+  "version": "1.0.0",
+  "author": "ecb",
+  "license": "MIT",
+  "description": "OpenVPN/IKEv2 status and connection menu for the CIn VPN.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "CIn VPN",
+    "description": "Shows VPN connection status; click to connect/disconnect.",
+    "category": "Network",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "refreshIntervalSec": 10
+    },
+    "schema": [
+      {
+        "key": "refreshIntervalSec",
+        "type": "integer",
+        "label": "Refresh interval (seconds)",
+        "min": 5,
+        "max": 3600,
+        "step": 5,
+        "defaultValue": 10
+      }
+    ]
+  }
+}
