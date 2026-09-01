@@ -16,7 +16,7 @@
           "id": "io.github.sumdahl.media"
         },
         {
-          "id": "tmn73.calendar",
+          "announceLeadMinutes": 30,
           "format": "ddd d MMM h:mm AP",
           "hiddenCalendars": [
             "c_53ba404193c8488c16e80e01e50c063e0d2d29cb81c5cf97b171efa4cb4179fc@group.calendar.google.com",
@@ -30,7 +30,8 @@
             "c_61f363d0a583152a2b2e7b0f2e1b4a7ba38a18a1678289d1b1d232072f4cb0e4@group.calendar.google.com",
             "h6qrnjvrpbog97g8mrn0pgdmhe926lq9@import.calendar.google.com"
           ],
-          "announceLeadMinutes": 30
+          "id": "tmn73.calendar",
+          "verticalFormat": "h\n—\nmm\nAP"
         },
         {
           "id": "omarchy.system-update"
@@ -53,6 +54,10 @@
       "right": [
         {
           "id": "omarchy.tray"
+        },
+        {
+          "host": "gitlab.cin.ufpe.br",
+          "id": "io.github.edgarsilva.gitlab-ci"
         },
         {
           "id": "gpdenny.linear"
@@ -99,7 +104,7 @@
       ]
     },
     "position": "top",
-    "transparent": true
+    "transparent": false
   },
   "cloneSourceRestores": [
     "io.github.sirjul1337.lock-explorer"

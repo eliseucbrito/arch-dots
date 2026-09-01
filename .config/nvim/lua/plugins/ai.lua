@@ -24,7 +24,7 @@ return {
       })
     end,
     keys = {
-      { "<leader>ac", "<cmd>CodeCompanionChat Toggle<cr>", desc = "Toggle AI Chat" },
+      -- { "<leader>ac", "<cmd>CodeCompanionChat Toggle<cr>", desc = "Toggle AI Chat" },
       { "<leader>ap", "<cmd>CodeCompanionActions<cr>", desc = "AI Prompt Actions" },
     },
   },

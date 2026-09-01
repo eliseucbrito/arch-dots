@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Chromium para uso dentro do sandbox nono (profile claude-multi).
+# Ajusta TMPDIR e flags que o Landlock exige (socket bind, /dev/shm, gpu).
+# Usado pelos agentes para debug com claude-in-chrome / MCP devtools.
+export TMPDIR=/tmp/claude-1000
+exec /usr/bin/chromium \
+  --no-sandbox \
+  --disable-dev-shm-usage \
+  --disable-gpu \
+  --user-data-dir="$HOME/.cache/chromium/sandbox-profile" \
+  "$@"

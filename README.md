@@ -222,6 +222,91 @@ ip route get 172.21.2.1    # an internal host IP behind the tunnel
 # src 172.23.x.x    → routing OK; check DNS/firewall
 ```
 
+## Sandbox (nono)
+
+Coding agents run in autonomous mode, so they execute commands without asking. To keep that
+safe, the Claude Code agents run inside [**nono**](https://herdr.dev/docs/quick-start/), a
+capability-based sandbox that fences off what the agent can read, write, and reach over the
+network. The `claude` fish function (`fish/.config/fish/functions/claude.fish`) starts a
+sandboxed session when you pass `--sandbox`:
+
+```bash
+claude --sandbox        # picks the account, then launches under nono
+claude                  # normal, unsandboxed session
+```
+
+The policy lives in the user profile `~/.config/nono/profiles/claude-multi.json` and enforces
+three things.
+
+### Network: allow-list, not open door
+
+The base profile leaves the network wide open, which defeats the point — an agent that can
+read a file can also POST it anywhere. This profile flips that to default-deny: only the hosts
+the agent actually needs are reachable (Anthropic's API, the package registries, GitHub raw
+content, and the two GitLab hosts). Everything else, `pastebin.com` included, is refused at the
+proxy. Even if the agent reads a project `.env`, it has nowhere to send it.
+
+```bash
+nono why --profile claude-multi --host https://pastebin.com    # DENIED
+nono why --profile claude-multi --host https://api.anthropic.com # ALLOWED
+```
+
+### Credentials: gh and glab work, the token stays hidden
+
+The agent can open PRs and MRs with `gh` and `glab`, but it never sees the real tokens. nono
+runs a credential proxy: the supervisor reads the token outside the sandbox (`gh` from the
+system keyring, `glab` from its config), injects a phantom token into the agent's environment,
+and swaps in the real one only on outbound requests to the allowed API endpoints. Inside the
+sandbox, `gh auth token` returns the phantom, and the real `~/.config/glab-cli/config.yml` is
+unreadable. Destructive calls (`DELETE`, repo deletion) fall outside the allowed endpoint list,
+so the proxy never authenticates them.
+
+glab points at a sanitized, token-free copy of its config via `GLAB_CONFIG_DIR`
+(`~/.config/nono/glab-sandbox/`). If you add or re-auth a GitLab host, regenerate it:
+
+```bash
+# strip the tokens from the real config into the sandbox copy
+python3 - <<'PY'
+import yaml
+d = yaml.safe_load(open("$HOME/.config/glab-cli/config.yml"))
+for h, v in (d.get("hosts") or {}).items():
+    if isinstance(v, dict): v.pop("token", None); v.pop("oauth_token", None)
+yaml.safe_dump(d, open("$HOME/.config/nono/glab-sandbox/config.yml", "w"), sort_keys=False)
+PY
+chmod 600 ~/.config/nono/glab-sandbox/config.yml
+```
+
+### Filesystem: secrets are out of reach
+
+The profile grants read+write on `~/projects` and the Claude state dirs, read-only on a handful
+of tool configs, and nothing else. The `deny_credentials` group (inherited, non-removable)
+blocks `~/.ssh`, `~/.aws`, `~/.config/gcloud`, and the rest of the usual credential paths.
+
+> **Linux caveat:** the kernel's Landlock backend cannot deny a file *inside* a directory that
+> is granted read+write. Since `~/projects` is granted wholesale, a `.env` sitting in a repo is
+> readable by the agent. The network allow-list is what actually prevents that secret from
+> leaving the machine, so the protection holds even though the file is legible. On macOS the
+> same profile would deny the file outright.
+
+### Browser debugging (chromium)
+
+For debugging with the claude-in-chrome extension and the DevTools MCP, the profile permits
+chromium: its config and cache dirs, the fonts, a Unix-socket bind for the singleton lock, and
+the remote-debug port `9222` on localhost. Launch it inside the sandbox with the
+`chromium-sandbox` wrapper, which sets `TMPDIR` and the flags Landlock requires:
+
+```bash
+chromium-sandbox --remote-debugging-port=9222
+```
+
+### Status in the herdr sidebar
+
+The function uses `nono run` (not `nono wrap`): the supervisor has to stay alive for the
+credential proxy, and `run` still attaches the current terminal and passes through the OSC
+title sequences that [herdr](https://herdr.dev) reads to show each agent's state
+(`working` / `idle` / `blocked` / `done`) in its sidebar. `--silent` suppresses nono's startup
+banner so it doesn't clutter the pane or confuse the detection.
+
 ## Maintenance
 
 ### Updating dotfiles

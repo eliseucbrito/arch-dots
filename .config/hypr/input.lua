@@ -57,15 +57,22 @@
 -- hl.gesture({ fingers = 3, direction = "right", action = function() hl.dispatch(hl.dsp.focus({ direction = "r" })) end })
 
 hl.config({
-  input = {
-    kb_layout = "br,us",
-    kb_variant = "abnt2,intl",
-    follow_mouse = 0,
+	input = {
+		kb_layout = "br,us",
+		kb_variant = "abnt2,intl",
+		follow_mouse = 0,
 
-    touchpad = {
-      natural_scroll = true,
-    },
-  },
+		touchpad = {
+			natural_scroll = true,
+		},
+	},
 })
 
 hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
+local expose_gesture_path = os.getenv("HOME") .. "/.config/omarchy/plugins/expose.window-overview/workspace-gesture.lua"
+local expose_gesture_loader = loadfile(expose_gesture_path)
+if expose_gesture_loader then
+	expose_gesture_loader()({ fingers = 4, scale = 0.5 })
+else
+	hl.gesture({ fingers = 4, direction = "horizontal", scale = 0.5, action = "workspace" })
+end

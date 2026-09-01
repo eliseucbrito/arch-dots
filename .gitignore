@@ -33,6 +33,10 @@ install.log
 # Claude machine-specific settings
 .claude/settings.local.json
 
+# Skills (installed via skill-lock + make install)
+.claude/skills/
+.agents/skills/
+
 # Machine-specific shell state
 .config/fish/fish_variables
 .config/fish/functions/*

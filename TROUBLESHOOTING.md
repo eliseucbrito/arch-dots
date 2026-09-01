@@ -6,6 +6,7 @@ Notes on bugs that have actually bitten this setup, and their permanent fixes.
   - [Bug #1 — a Docker bridge shadows the tunnel's subnets](#bug-1--a-docker-bridge-shadows-the-tunnels-subnets)
   - [Bug #2 — the tunnel's routing rule is missing](#bug-2--the-tunnels-routing-rule-is-missing)
 - [Wired CIn network — DNS resolves but connections time out](#wired-cin-network--dns-resolves-but-connections-time-out)
+- [Minikube — pods stuck ImagePullBackOff, DNS SERVFAIL inside the node](#minikube--pods-stuck-imagepullbackoff-dns-servfail-inside-the-node)
 
 ---
 
@@ -127,3 +128,59 @@ sudo systemctl restart docker && sudo systemctl restart systemd-resolved
 
 Likely a stuck `systemd-resolved` state/cache rather than Docker itself, but restarting both
 together is the known-working sequence — hasn't been isolated further yet.
+
+## Minikube — pods stuck ImagePullBackOff, DNS SERVFAIL inside the node
+
+Symptoms: `minikube start` prints `Failing to connect to https://registry.k8s.io/`, and every
+pod that needs an image (even unrelated ones — `busybox`, `postgres`, app images) sits in
+`ErrImagePull`/`ImagePullBackOff`. `kubectl describe pod` shows the real cause in Events:
+
+```
+Failed to pull image "...": Error response from daemon: Get "https://registry-1.docker.io/v2/":
+dial tcp: lookup registry-1.docker.io on <bridge-gateway-ip>:53: server misbehaving
+```
+
+Root cause: same family as [Bug #1](#bug-1--a-docker-bridge-shadows-the-tunnels-subnets)'s DNS
+half, but the *other* direction. `minikube start -p <profile>` (the `docker` driver) creates its
+**own** Docker bridge (e.g. `br-02bb1af570dd`) with its own gateway IP — not necessarily
+`docker0`/`172.17.0.1`, and not the `bip` configured in `daemon.json` either. That gateway isn't
+in `DNSStubListenerExtra` (`/etc/systemd/resolved.conf.d/20-docker-dns.conf`), so
+`systemd-resolved`'s stub never answers queries from inside the minikube node — they `SERVFAIL`,
+and every image pull fails regardless of registry.
+
+Confirm the mismatch:
+
+```bash
+docker network inspect <profile> --format '{{(index .IPAM.Config 0).Gateway}}'   # e.g. 192.168.58.1
+cat /etc/systemd/resolved.conf.d/20-docker-dns.conf                              # stub IP(s) configured
+```
+
+If the gateway isn't listed, that's it.
+
+**Fix — add the minikube bridge's gateway as an extra stub listener** (the directive accepts
+multiple lines, one IP each):
+
+```ini
+[Resolve]
+DNSStubListenerExtra=172.17.0.1
+DNSStubListenerExtra=192.168.58.1
+```
+
+The `[Resolve]` header is mandatory and easy to lose if you overwrite the file with a bare
+`echo`/`tee` (e.g. piping just the `DNSStubListenerExtra=...` lines) — without it,
+`systemd-resolved` silently ignores every line in the drop-in (`journalctl -u systemd-resolved`
+shows `Assignment outside of section. Ignoring.` for each one) and the stub never binds, so the
+symptom looks unchanged after "fixing" it. Always write the whole file, header included.
+
+```bash
+sudo systemctl restart systemd-resolved && sudo systemctl restart docker
+docker exec <profile> getent hosts registry-1.docker.io   # should resolve now
+```
+
+Note: `restart docker` kills every running container, minikube included — `minikube start
+-p <profile>` again afterward.
+
+Note: this gateway IP is **not stable** — `minikube delete && minikube start` (or Docker
+reallocating bridges) can hand the profile a different subnet next time, reproducing the same
+`SERVFAIL` with a new IP. There's no permanent fix short of pinning the minikube network's
+subnet explicitly; when it recurs, re-diagnose with the two commands above and add the new IP.

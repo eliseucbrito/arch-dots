@@ -57,6 +57,98 @@
     }
   },
   {
+    "plugin_id": "chmarax.herdr-nvim",
+    "name": "herdr-nvim",
+    "version": "0.2.1",
+    "min_herdr_version": "0.7.4",
+    "description": "Full-height nvim sidebar with agent annotations: toggle with one key, comment code, send to any agent.",
+    "manifest_path": "/home/ecb/dotfiles/.config/herdr/plugins/github/chmarax.herdr-nvim-178624809c23/herdr-plugin.toml",
+    "plugin_root": "/home/ecb/dotfiles/.config/herdr/plugins/github/chmarax.herdr-nvim-178624809c23",
+    "enabled": true,
+    "platforms": [
+      "macos",
+      "linux"
+    ],
+    "build": [
+      {
+        "command": [
+          "bash",
+          "herdr/install.sh"
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "open-link",
+        "title": "nvim sidebar: open clicked file",
+        "command": [
+          "sh",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/herdr/run.sh\" open-link"
+        ]
+      },
+      {
+        "id": "pick-file",
+        "title": "nvim sidebar: open file from agent output",
+        "contexts": [
+          "pane"
+        ],
+        "command": [
+          "sh",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/herdr/run.sh\" pick-file"
+        ]
+      },
+      {
+        "id": "toggle",
+        "title": "nvim sidebar: toggle",
+        "contexts": [
+          "pane",
+          "workspace"
+        ],
+        "command": [
+          "sh",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/herdr/run.sh\" toggle"
+        ]
+      }
+    ],
+    "panes": [
+      {
+        "id": "picker",
+        "title": "open file",
+        "placement": "popup",
+        "command": [
+          "sh",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/herdr/run.sh\" picker"
+        ]
+      }
+    ],
+    "link_handlers": [
+      {
+        "id": "file-path",
+        "title": "Open in nvim sidebar",
+        "pattern": "^~?[\\w.@/()\\[\\]+-]+/[\\w.@()\\[\\]+-]+\\.[A-Za-z]\\w*(?::\\d+){0,2}$",
+        "action": "open-link"
+      },
+      {
+        "id": "file-url",
+        "title": "Open in nvim sidebar",
+        "pattern": "^file://",
+        "action": "open-link"
+      }
+    ],
+    "source": {
+      "kind": "github",
+      "owner": "ChmaraX",
+      "repo": "herdr-nvim",
+      "resolved_commit": "d1cc8ed5d53e7771471a6978454f3b1d566ef854",
+      "managed_path": "/home/ecb/.config/herdr/plugins/github/chmarax.herdr-nvim-178624809c23",
+      "installed_unix_ms": 1787453098837
+    }
+  },
+  {
     "plugin_id": "herdr-file-viewer",
     "name": "herdr-file-viewer",
     "version": "1.12.0",
@@ -175,6 +267,176 @@
     }
   },
   {
+    "plugin_id": "herdr.collie",
+    "name": "Collie",
+    "version": "0.32.1",
+    "min_herdr_version": "0.7.0",
+    "description": "Mobile web UI to monitor and reply to your agent herd, served over Tailscale",
+    "manifest_path": "/home/ecb/dotfiles/.config/herdr/plugins/github/herdr.collie-1edf0e1e987e/herdr-plugin.toml",
+    "plugin_root": "/home/ecb/dotfiles/.config/herdr/plugins/github/herdr.collie-1edf0e1e987e",
+    "enabled": true,
+    "platforms": [
+      "linux",
+      "macos"
+    ],
+    "build": [
+      {
+        "platforms": [
+          "linux",
+          "macos"
+        ],
+        "command": [
+          "bash",
+          "scripts/collie-ctl.sh",
+          "build"
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "push-keys",
+        "title": "Generate push keys",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "scripts/collie-ctl.sh",
+          "push-keys"
+        ]
+      },
+      {
+        "id": "push-test",
+        "title": "Send a test notification",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "scripts/collie-ctl.sh",
+          "push-test"
+        ]
+      },
+      {
+        "id": "restart",
+        "title": "Restart web bridge",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "scripts/collie-ctl.sh",
+          "restart"
+        ]
+      },
+      {
+        "id": "start",
+        "title": "Start web bridge",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "scripts/collie-ctl.sh",
+          "start"
+        ]
+      },
+      {
+        "id": "status",
+        "title": "Bridge status",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "scripts/collie-ctl.sh",
+          "status"
+        ]
+      },
+      {
+        "id": "stop",
+        "title": "Stop web bridge",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "scripts/collie-ctl.sh",
+          "stop"
+        ]
+      },
+      {
+        "id": "uninstall",
+        "title": "Uninstall web bridge (remove service)",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "scripts/collie-ctl.sh",
+          "uninstall"
+        ]
+      },
+      {
+        "id": "update",
+        "title": "Update plugin",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "scripts/collie-ctl.sh",
+          "update"
+        ]
+      },
+      {
+        "id": "update-major",
+        "title": "Update across a major version",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "scripts/collie-ctl.sh",
+          "update",
+          "--major"
+        ]
+      },
+      {
+        "id": "url",
+        "title": "Show bridge URL",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "scripts/collie-ctl.sh",
+          "url"
+        ]
+      },
+      {
+        "id": "version",
+        "title": "Show version",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "scripts/collie-ctl.sh",
+          "version"
+        ]
+      }
+    ],
+    "source": {
+      "kind": "github",
+      "owner": "AltanS",
+      "repo": "collie",
+      "resolved_commit": "2031ed7508703a9b8b6703ed07d8eeaf9f608468",
+      "managed_path": "/home/ecb/.config/herdr/plugins/github/herdr.collie-1edf0e1e987e",
+      "installed_unix_ms": 1787508341510
+    }
+  },
+  {
     "plugin_id": "official.browser",
     "name": "Browser",
     "version": "0.1.0",
@@ -245,7 +507,7 @@
   {
     "plugin_id": "persiyanov.reviewr",
     "name": "reviewr",
-    "version": "0.26.2",
+    "version": "0.36.0",
     "min_herdr_version": "0.7.5",
     "description": "Review agent-written diffs beside the chat and add line comments to the agent input.",
     "manifest_path": "/home/ecb/dotfiles/.config/herdr/plugins/github/persiyanov.reviewr-e87b654a74f8/herdr-plugin.toml",
@@ -266,40 +528,40 @@
     "actions": [
       {
         "id": "close",
-        "title": "reviewr: close sidebar",
+        "title": "reviewr: close pane",
         "contexts": [
           "pane",
           "workspace"
         ],
         "command": [
           "bash",
-          "herdr/sidebar.sh",
+          "herdr/pane.sh",
           "close"
         ]
       },
       {
         "id": "open",
-        "title": "reviewr: open sidebar",
+        "title": "reviewr: open pane",
         "contexts": [
           "pane",
           "workspace"
         ],
         "command": [
           "bash",
-          "herdr/sidebar.sh",
+          "herdr/pane.sh",
           "open"
         ]
       },
       {
         "id": "toggle",
-        "title": "reviewr: toggle sidebar",
+        "title": "reviewr: toggle pane",
         "contexts": [
           "pane",
           "workspace"
         ],
         "command": [
           "bash",
-          "herdr/sidebar.sh",
+          "herdr/pane.sh",
           "toggle"
         ]
       }
@@ -309,14 +571,14 @@
         "on": "worktree.created",
         "command": [
           "bash",
-          "herdr/sidebar.sh",
+          "herdr/pane.sh",
           "auto-open"
         ]
       }
     ],
     "panes": [
       {
-        "id": "sidebar",
+        "id": "pane",
         "title": "reviewr",
         "placement": "split",
         "command": [
@@ -330,9 +592,9 @@
       "kind": "github",
       "owner": "persiyanov",
       "repo": "herdr-reviewr",
-      "resolved_commit": "1068100ec5553f51f7527f60fb08055d7f2fd29e",
+      "resolved_commit": "d172ea257ea39bc0eddc9608df1c405744c19e56",
       "managed_path": "/home/ecb/.config/herdr/plugins/github/persiyanov.reviewr-e87b654a74f8",
-      "installed_unix_ms": 1785440683002
+      "installed_unix_ms": 1787626159700
     }
   },
   {

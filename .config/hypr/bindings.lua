@@ -42,6 +42,15 @@ hl.unbind("SUPER + CTRL + ALT + Z")
 hl.unbind("SUPER + SPACE")
 o.bind("SUPER + SPACE", "Launch apps (Vicinae)", "vicinae toggle")
 
+-- Move the Omarchy menu off SUPER+ALT+SPACE (was: Apps menu).
+hl.unbind("SUPER + ALT + SPACE")
+o.bind("SUPER + ALT + SPACE", "Omarchy menu", "omarchy-menu toggle root")
+
 -- Personal task apps.
 o.bind("SUPER + ALT + T", "Dooing Claude backlog", "omarchy-launch-dooing-claude")
 o.bind("SUPER + SHIFT + T", "Taskle", "omarchy-launch-taskle")
+
+-- >>> blizl.voxtype-osd keybindings (managed; removed by bin/uninstall) >>>
+o.bind("SUPER + E", "VoxType engine picker", "mkdir -p $XDG_RUNTIME_DIR/voxtype && touch $XDG_RUNTIME_DIR/voxtype/engine-picker.flag")
+o.bind("SUPER + M", "VoxType meeting controls", "mkdir -p $XDG_RUNTIME_DIR/voxtype && touch $XDG_RUNTIME_DIR/voxtype/meeting-controls.flag")
+-- <<< blizl.voxtype-osd keybindings <<<

@@ -37,7 +37,7 @@ function claude
     #             set -x CLAUDE_CONFIG_DIR "$HOME/.claude-$dir_name"
     #
     #             if test $sandbox -eq 1
-    #                 nono run --profile claude-multi --allow . -- /usr/bin/claude $argv
+    #                 nono run --silent --profile claude-multi --allow . -- /usr/bin/claude $argv
     #             else
     #                 /usr/bin/claude $argv
     #             end
@@ -68,7 +68,23 @@ function claude
     set -x CLAUDE_CONFIG_DIR "$HOME/.claude-$dir_name"
 
     if test $sandbox -eq 1
-        nono run --profile claude-multi --allow . -- /usr/bin/claude $argv
+        # run (não wrap): mantém o supervisor nono vivo, necessário para o
+        # proxy de credenciais gh/glab (esconde o token do agente). run anexa
+        # o terminal atual e repassa os títulos OSC do claude, então o herdr
+        # detecta o status (working/idle/blocked/done) na barra lateral.
+        # --silent: suprime o banner de capacidades e o hint de registry.
+        set nono_args --silent --profile claude-multi --allow .
+
+        # Dentro do herdr: instala o hook de integração no CLAUDE_CONFIG_DIR da
+        # conta e libera o socket do herdr para o sandbox, senão o /proc do
+        # claude fica mascarado e o herdr não registra o agente.
+        if test "$HERDR_ENV" = 1; and test -n "$HERDR_SOCKET_PATH"
+            test -f "$CLAUDE_CONFIG_DIR/hooks/herdr-agent-state.sh"
+            or herdr integration install claude >/dev/null 2>&1
+            set nono_args $nono_args --allow-unix-socket "$HERDR_SOCKET_PATH"
+        end
+
+        nono run $nono_args -- /usr/bin/claude $argv
     else
         /usr/bin/claude $argv
     end

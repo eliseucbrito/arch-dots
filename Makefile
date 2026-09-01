@@ -28,35 +28,50 @@ install:
 		ln -sf "$$item" "$$target"; \
 		echo "  -> $$target"; \
 	done
-	@echo "=> Applying skills symlinks (canonical .agents + default Claude account)..."
-	@for skdir in "$(HOME)/.agents/skills" "$(HOME)/.claude/skills"; do \
-		mkdir -p "$$skdir"; \
-		for item in $(DOTFILES)/.agents/skills/*; do \
-			[ -e "$$item" ] || continue; \
-			base=$$(basename "$$item"); \
-			target="$$skdir/$$base"; \
+	@echo "=> Installing skills from skill-lock..."
+	@mkdir -p "$(HOME)/.agents/skills" "$(HOME)/.claude/skills"
+	@while IFS= read -r line; do \
+		case "$$line" in \#*|"") continue;; esac; \
+		name=$$(echo "$$line" | awk '{print $$1}'); \
+		src=$$(echo "$$line" | awk '{print $$2}'); \
+		case "$$src" in \
+			./*) abs="$(DOTFILES)/$${src#./}";; \
+			/*)   abs="$$src";; \
+			*)    echo "  ! skip $$name (bad source: $$src)"; continue;; \
+		esac; \
+		if [ ! -e "$$abs" ] && [ ! -L "$$abs" ]; then \
+			echo "  ! skip $$name (source not found: $$abs)"; \
+			continue; \
+		fi; \
+		for skdir in "$(HOME)/.agents/skills" "$(HOME)/.claude/skills"; do \
+			target="$$skdir/$$name"; \
 			if [ -e "$$target" ] || [ -L "$$target" ]; then \
 				rm -rf "$$target"; \
 			fi; \
-			ln -sf "$$item" "$$target"; \
-			echo "  -> $$target"; \
+			ln -sf "$$abs" "$$target"; \
 		done; \
-	done
+		echo "  -> $$name"; \
+	done < $(DOTFILES)/skill-lock
 	@echo "=> Syncing skills into existing Claude profiles..."
-	@for target in $(HOME)/.claude-*; do \
-		[ -d "$$target/skills" ] || continue; \
-		for item in $(DOTFILES)/.agents/skills/*; do \
-			[ -e "$$item" ] || continue; \
-			base=$$(basename "$$item"); \
-			dest="$$target/skills/$$base"; \
+	@while IFS= read -r line; do \
+		case "$$line" in \#*|"") continue;; esac; \
+		name=$$(echo "$$line" | awk '{print $$1}'); \
+		src=$$(echo "$$line" | awk '{print $$2}'); \
+		case "$$src" in \
+			./*) abs="$(DOTFILES)/$${src#./}";; \
+			/*)   abs="$$src";; \
+			*)    continue;; \
+		esac; \
+		for target in $(HOME)/.claude-*; do \
+			[ -d "$$target/skills" ] || continue; \
+			dest="$$target/skills/$$name"; \
 			if [ -e "$$dest" ] && [ ! -L "$$dest" ]; then \
-				echo "  ~ keeping real file (not touched): $$dest"; \
 				continue; \
 			fi; \
-			ln -sfn "$$item" "$$dest"; \
+			ln -sfn "$$abs" "$$dest"; \
 			echo "  -> $$dest"; \
 		done; \
-	done
+	done < $(DOTFILES)/skill-lock
 	@echo "=> Applying .local/bin symlinks..."
 	@mkdir -p "$(HOME)/.local/bin"
 	@for item in $(DOTFILES)/.local/bin/*; do \
@@ -102,13 +117,20 @@ profile:
 		ln -sfn "$$item" "$$dest"; \
 		echo "  -> $$dest"; \
 	done; \
-	for item in $(DOTFILES)/.agents/skills/*; do \
-		[ -e "$$item" ] || continue; \
-		base=$$(basename "$$item"); \
-		dest="$$target/skills/$$base"; \
+	while IFS= read -r line; do \
+		case "$$line" in \#*|"") continue;; esac; \
+		name=$$(echo "$$line" | awk '{print $$1}'); \
+		src=$$(echo "$$line" | awk '{print $$2}'); \
+		case "$$src" in \
+			./*) abs="$(DOTFILES)/$${src#./}";; \
+			/*)   abs="$$src";; \
+			*)    continue;; \
+		esac; \
+		[ -e "$$abs" ] || [ -L "$$abs" ] || continue; \
+		dest="$$target/skills/$$name"; \
 		if [ -e "$$dest" ] && [ ! -L "$$dest" ]; then continue; fi; \
-		ln -sfn "$$item" "$$dest"; \
-	done; \
+		ln -sfn "$$abs" "$$dest"; \
+	done < $(DOTFILES)/skill-lock; \
 	if [ ! -e "$$target/settings.json" ]; then \
 		cp "$(DOTFILES)/.claude/settings.json" "$$target/settings.json"; \
 		echo "  + seeded $$target/settings.json (edit freely per profile)"; \
@@ -150,15 +172,15 @@ clean:
 		fi; \
 	done
 	@for skdir in "$(HOME)/.agents/skills" "$(HOME)/.claude/skills"; do \
-		for item in $(DOTFILES)/.agents/skills/*; do \
-			[ -e "$$item" ] || continue; \
-			base=$$(basename "$$item"); \
-			target="$$skdir/$$base"; \
+		while IFS= read -r line; do \
+			case "$$line" in \#*|"") continue;; esac; \
+			name=$$(echo "$$line" | awk '{print $$1}'); \
+			target="$$skdir/$$name"; \
 			if [ -L "$$target" ]; then \
 				rm -f "$$target"; \
 				echo "  -> removed: $$target"; \
 			fi; \
-		done; \
+		done < $(DOTFILES)/skill-lock; \
 	done
 	@for item in $(DOTFILES)/.local/bin/*; do \
 		base=$$(basename "$$item"); \

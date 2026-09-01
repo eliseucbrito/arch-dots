@@ -1,0 +1,34 @@
+# skill-lock — which skills to install via `make install`
+# Format: <skill-name> <source-path>
+#   source-path starting with ./  = repo-local (.agents/skills/<name>)
+#   anything else                = absolute system path
+
+# Repo-local skills
+bugfix              ./agents/skills/bugfix
+commit              ./agents/skills/commit
+dev                 ./agents/skills/dev
+diagram-design      ./agents/skills/diagram-design
+docs-site           ./agents/skills/docs-site
+domain-modeling     ./agents/skills/domain-modeling
+explainer           ./agents/skills/explainer
+grill-with-docs     ./agents/skills/grill-with-docs
+grilling            ./agents/skills/grilling
+handoff             ./agents/skills/handoff
+herdr-plugin        ./agents/skills/herdr-plugin
+improve-codebase-architecture ./agents/skills/improve-codebase-architecture
+lgpd                ./agents/skills/lgpd
+pagespeed           ./agents/skills/pagespeed
+review              ./agents/skills/review
+sync                ./agents/skills/sync
+taskle-memory       ./agents/skills/taskle-memory
+testcontainers      ./agents/skills/testcontainers
+
+# .claude/skills-only (real directories, not symlinks)
+get-linked-context  .claude/skills/get-linked-context
+interview-me        .claude/skills/interview-me
+manage-nodeterm-canvas .claude/skills/manage-nodeterm-canvas
+
+# System-provided skills
+diagnose-crash      /usr/share/omarchy/default/agents/skills/diagnose-crash
+i-have-adhd         ./agents/skills/i-have-adhd
+omarchy             /usr/share/omarchy/default/agents/skills/omarchy
