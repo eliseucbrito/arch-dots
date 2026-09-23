@@ -12,6 +12,13 @@
       "sourceType": "github",
       "skillPath": "plugins/lgpd/skills/lgpd/SKILL.md",
       "computedHash": "3d0f5f58edd573cc6ee2edfe7f481a597d0487e346101fd306fa563c24f78a28"
+    },
+    "nono": {
+      "source": "nono.sh",
+      "sourceUrl": "https://nono.sh/docs",
+      "sourceType": "well-known",
+      "computedHash": "287d169d4f7d5f8ea07dde7c946f4573e19fe370c85b924cb8d2c798c37b7458",
+      "wellKnownDigest": "sha256:032ff74a2ff53d52fd156c48770416915f16f4bcf593005c004295253c8f540d"
     }
   }
 }

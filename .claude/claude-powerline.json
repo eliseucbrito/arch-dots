@@ -29,7 +29,7 @@
             "enabled": true
           },
           "env": {
-            "enabled": true,
+            "enabled": false,
             "variable": "NONO_SANDBOX_ACTIVE",
             "prefix": "SANDBOX"
           },

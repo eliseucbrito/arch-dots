@@ -1,4 +1,5 @@
 {
+  "skillListingBudgetFraction": 0.005,
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
@@ -13,23 +14,45 @@
       "Bash(yarn test *)",
       "Bash(pnpm test *)",
       "Bash(pnpm run test *)",
+      "Read(//home/ecb/.claude/**)",
       "mcp__codegraph__*"
-    ]
+    ],
+    "defaultMode": "auto"
   },
-  "autoCompactEnabled": true,
-  "autoCompactWindow": 150000,
-  "effortLevel": "medium",
+  "model": "sonnet",
+  "skillOverrides": {
+    "find-skills": "user-invocable-only"
+  },
   "hooks": {
     "SessionStart": [
       {
+        "matcher": "*",
         "hooks": [
           {
-            "command": "bash '/home/ecb/.claude/hooks/herdr-agent-state.sh' session",
-            "timeout": 10,
-            "type": "command"
+            "type": "command",
+            "command": "nohup sh -c '[ -d .codegraph ] && exec codegraph sync -q || exec codegraph init' >/dev/null 2>&1 &",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_CONFIG_DIR/hooks/herdr-agent-state.sh\" session",
+            "timeout": 10
+          },
+          {
+            "type": "prompt",
+            "prompt": "Invoke the /i-have-adhd skill to apply ADHD-friendly formatting rules for this session."
           }
-        ],
-        "matcher": "*"
+        ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/home/ecb/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "PreToolUse": [
@@ -54,16 +77,68 @@
       }
     ]
   },
-  "skillListingBudgetFraction": 0.005,
-  "skillOverrides": {
-    "find-skills": "user-invocable-only"
-  },
-  "skipWorkflowUsageWarning": true,
+  "workflowKeywordTriggerEnabled": false,
   "statusLine": {
     "type": "command",
     "command": "claude-powerline",
     "padding": 0,
     "refreshInterval": 10
   },
-  "theme": "dark"
+  "enabledPlugins": {
+    "dx@ykdojo": true,
+    "vercel@claude-plugins-official": true,
+    "claude-powerline@claude-powerline": true,
+    "skill-creator@claude-plugins-official": true,
+    "i-have-adhd@i-have-adhd": true
+  },
+  "extraKnownMarketplaces": {
+    "ykdojo": {
+      "source": {
+        "source": "github",
+        "repo": "ykdojo/claude-code-tips"
+      }
+    },
+    "claude-powerline": {
+      "source": {
+        "source": "github",
+        "repo": "Owloops/claude-powerline"
+      }
+    },
+    "impeccable": {
+      "source": {
+        "source": "github",
+        "repo": "pbakaus/impeccable"
+      }
+    },
+    "context-mode": {
+      "source": {
+        "source": "github",
+        "repo": "mksglu/context-mode"
+      }
+    },
+    "i-have-adhd": {
+      "source": {
+        "source": "github",
+        "repo": "ayghri/i-have-adhd"
+      }
+    }
+  },
+  "alwaysThinkingEnabled": false,
+  "effortLevel": "medium",
+  "autoCompactWindow": 150000,
+  "tui": "fullscreen",
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
+  },
+  "skipWorkflowUsageWarning": true,
+  "theme": "dark",
+  "editorMode": "normal",
+  "preferredNotifChannel": "kitty",
+  "autoCompactEnabled": false,
+  "teammateMode": "tmux",
+  "remoteControlAtStartup": false,
+  "inputNeededNotifEnabled": false,
+  "agentPushNotifEnabled": false,
+  "voiceEnabled": true
 }

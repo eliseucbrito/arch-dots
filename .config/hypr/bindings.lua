@@ -49,8 +49,28 @@ o.bind("SUPER + ALT + SPACE", "Omarchy menu", "omarchy-menu toggle root")
 -- Personal task apps.
 o.bind("SUPER + ALT + T", "Dooing Claude backlog", "omarchy-launch-dooing-claude")
 o.bind("SUPER + SHIFT + T", "Taskle", "omarchy-launch-taskle")
+o.bind("SUPER + ALT + N", "Snip", "setsid uwsm-app -- xdg-terminal-exec --app-id=org.omarchy.snip -e snip")
 
 -- >>> blizl.voxtype-osd keybindings (managed; removed by bin/uninstall) >>>
-o.bind("SUPER + E", "VoxType engine picker", "mkdir -p $XDG_RUNTIME_DIR/voxtype && touch $XDG_RUNTIME_DIR/voxtype/engine-picker.flag")
-o.bind("SUPER + M", "VoxType meeting controls", "mkdir -p $XDG_RUNTIME_DIR/voxtype && touch $XDG_RUNTIME_DIR/voxtype/meeting-controls.flag")
+o.bind(
+	"SUPER + E",
+	"VoxType engine picker",
+	"mkdir -p $XDG_RUNTIME_DIR/voxtype && touch $XDG_RUNTIME_DIR/voxtype/engine-picker.flag"
+)
+o.bind(
+	"SUPER + M",
+	"VoxType meeting controls",
+	"mkdir -p $XDG_RUNTIME_DIR/voxtype && touch $XDG_RUNTIME_DIR/voxtype/meeting-controls.flag"
+)
 -- <<< blizl.voxtype-osd keybindings <<<
+--
+--
+-- Plugins
+-- o.bind("SUPER + N", "New Omatabs note", [[omarchy-shell shell toggle tony.omatabs '{}']])
+o.bind("SUPER + N", "Capture note", "omarchy-shell shell toggle io.github.davidkim-sometimes-davekim.capture '{}'")
+
+-- Minimize window (Omarchy Minimize plugin)
+o.bind("SUPER + MINUS", "Minimize window", hl.dsp.window.move({
+  workspace = "special:omarchy-minimized",
+  follow = false,
+}))

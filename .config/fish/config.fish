@@ -9,6 +9,9 @@ set -U fish_greeting ""
 set -gx EDITOR nvim
 set -gx VISUAL nvim
 
+# SSH agent socket (systemd socket-activated, see: systemctl --user status ssh-agent.socket)
+set -gx SSH_AUTH_SOCK /run/user/1000/ssh-agent.socket
+
 # Add local directories to PATH (personal scripts, npm/yarn binaries, cargo)
 fish_add_path ~/.dotfiles/bin
 fish_add_path ~/.local/bin
@@ -20,10 +23,22 @@ fish_add_path ~/.cargo/bin
 # =============================================================================
 
 # Navigation and listing (Requires 'eza' and 'bat' installed)
+alias c="clear"
 alias ls="eza --icons --group-directories-first"
 alias ll="eza -la --icons --group-directories-first"
 alias tree="eza --tree --icons"
 alias cat="bat --style=plain --paging=never"
+
+# Docker
+alias dc="docker compose up -d"
+alias dcd="docker compose down"
+
+# Git
+alias gp="git push"
+
+# Claude Code
+alias cc="claude"
+alias cs="claude --sandbox"
 
 # Safety flags for destructive commands
 alias rm="rm -I"
@@ -37,7 +52,6 @@ alias mv="mv -i"
 # Git (While plugins like forgit cover a lot, these manual shortcuts are handy)
 alias gs="git status"
 alias gc="git commit -m"
-alias gp="git push"
 alias gpl="git pull"
 
 # Docker & Containers
@@ -160,3 +174,10 @@ end
 
 # Starship prompt
 starship init fish | source
+
+for _f in $HOME/.config/herdr/plugins/github/herdr-automatic-rename-*/shell/hook.fish
+    test -r "$_f"; and source "$_f"; and break
+end
+
+abbr -a --position anywhere -- --help '--help | bat -plhelp'
+abbr -a --position anywhere -- -h '-h | bat -plhelp'

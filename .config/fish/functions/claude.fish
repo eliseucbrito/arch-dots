@@ -69,19 +69,31 @@ function claude
 
     if test $sandbox -eq 1
         # run (não wrap): mantém o supervisor nono vivo, necessário para o
-        # proxy de credenciais gh/glab (esconde o token do agente). run anexa
-        # o terminal atual e repassa os títulos OSC do claude, então o herdr
-        # detecta o status (working/idle/blocked/done) na barra lateral.
+        # proxy de credenciais gh/glab (esconde o token do agente). wrap faz
+        # exec e some, mas não suporta --credential.
         # --silent: suprime o banner de capacidades e o hint de registry.
         set nono_args --silent --profile claude-multi --allow .
 
+        # Marca a sessão para o segmento SANDBOX da statusline (nono herda o env).
+        set -x NONO_SANDBOX_ACTIVE on
+
         # Dentro do herdr: instala o hook de integração no CLAUDE_CONFIG_DIR da
-        # conta e libera o socket do herdr para o sandbox, senão o /proc do
-        # claude fica mascarado e o herdr não registra o agente.
+        # conta e libera o socket do herdr para o sandbox, senão o hook de
+        # SessionStart não consegue reportar a sessão.
         if test "$HERDR_ENV" = 1; and test -n "$HERDR_SOCKET_PATH"
             test -f "$CLAUDE_CONFIG_DIR/hooks/herdr-agent-state.sh"
             or herdr integration install claude >/dev/null 2>&1
             set nono_args $nono_args --allow-unix-socket "$HERDR_SOCKET_PATH"
+
+            # O herdr identifica o agente pelos processos do process group em
+            # foreground do pane. `nono run` roda o claude num PTY proprio, entao
+            # o herdr so enxerga `nono` e nunca registra o agente: sem status na
+            # barra lateral e sem notificacoes. Renomear o argv[0] do supervisor
+            # para `claude` faz a deteccao passar sem trocar run por wrap (wrap
+            # nao suporta --credential, que o profile claude-multi usa para o
+            # proxy de token gh/glab).
+            bash -c 'exec -a claude "$@"' bash nono run $nono_args -- /usr/bin/claude $argv
+            return $status
         end
 
         nono run $nono_args -- /usr/bin/claude $argv

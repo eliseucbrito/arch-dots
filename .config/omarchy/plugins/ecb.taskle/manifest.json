@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "ecb.taskle",
+  "name": "Taskle",
+  "version": "1.0.0",
+  "author": "ecb",
+  "description": "Taskle Integration - urgent tasks and reminders",
+  "kinds": [
+    "bar-widget",
+    "service"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml",
+    "service": "Service.qml"
+  },
+  "barWidget": {
+    "displayName": "Taskle",
+    "description": "Shows the most urgent task.",
+    "category": "Productivity",
+    "allowMultiple": false
+  }
+}

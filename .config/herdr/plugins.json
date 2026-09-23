@@ -59,7 +59,7 @@
   {
     "plugin_id": "chmarax.herdr-nvim",
     "name": "herdr-nvim",
-    "version": "0.2.1",
+    "version": "1.0.0",
     "min_herdr_version": "0.7.4",
     "description": "Full-height nvim sidebar with agent annotations: toggle with one key, comment code, send to any agent.",
     "manifest_path": "/home/ecb/dotfiles/.config/herdr/plugins/github/chmarax.herdr-nvim-178624809c23/herdr-plugin.toml",
@@ -123,6 +123,16 @@
           "-c",
           "exec bash \"$HERDR_PLUGIN_ROOT/herdr/run.sh\" picker"
         ]
+      },
+      {
+        "id": "sidebar",
+        "title": "nvim sidebar",
+        "placement": "split",
+        "command": [
+          "sh",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/herdr/run.sh\" sidebar"
+        ]
       }
     ],
     "link_handlers": [
@@ -143,9 +153,351 @@
       "kind": "github",
       "owner": "ChmaraX",
       "repo": "herdr-nvim",
-      "resolved_commit": "d1cc8ed5d53e7771471a6978454f3b1d566ef854",
+      "resolved_commit": "e652ebf7b3d6713992e68a30aec588822e69fae5",
       "managed_path": "/home/ecb/.config/herdr/plugins/github/chmarax.herdr-nvim-178624809c23",
-      "installed_unix_ms": 1787453098837
+      "installed_unix_ms": 1789157112376
+    }
+  },
+  {
+    "plugin_id": "herdr-agent-quota",
+    "name": "Herdr Agent Quota",
+    "version": "1.4.0",
+    "min_herdr_version": "0.8.0",
+    "description": "Credential-scoped AI quota and context for Claude, Codex, Grok, Agy, OpenCode, Pi, omp, and Devin.",
+    "manifest_path": "/home/ecb/herdr-agent-quota/herdr-plugin.toml",
+    "plugin_root": "/home/ecb/herdr-agent-quota",
+    "enabled": true,
+    "platforms": [
+      "macos",
+      "linux"
+    ],
+    "build": [
+      {
+        "command": [
+          "cargo",
+          "build",
+          "--release"
+        ]
+      }
+    ],
+    "startup": [
+      {
+        "command": [
+          "sh",
+          "-c",
+          "exec \"$HERDR_PLUGIN_ROOT/target/release/herdr-agent-quota\" startup --provider all"
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "configure",
+        "title": "Install / repair agent quota",
+        "command": [
+          "sh",
+          "-c",
+          "\"$HERDR_PLUGIN_ROOT/target/release/herdr-agent-quota\" configure --apply && herdr server reload-config"
+        ]
+      },
+      {
+        "id": "open-settings",
+        "title": "Open agent quota settings",
+        "command": [
+          "sh",
+          "-c",
+          "exec \"$HERDR_BIN_PATH\" plugin pane open --plugin herdr-agent-quota --entrypoint settings --focus"
+        ]
+      },
+      {
+        "id": "refresh",
+        "title": "Refresh agent quota",
+        "command": [
+          "sh",
+          "-c",
+          "exec \"$HERDR_PLUGIN_ROOT/target/release/herdr-agent-quota\" refresh --provider all --force"
+        ]
+      },
+      {
+        "id": "uninstall",
+        "title": "Uninstall agent quota configuration",
+        "command": [
+          "sh",
+          "-c",
+          "\"$HERDR_PLUGIN_ROOT/target/release/herdr-agent-quota\" configure --uninstall && herdr server reload-config"
+        ]
+      }
+    ],
+    "events": [
+      {
+        "on": "pane.agent_detected",
+        "command": [
+          "sh",
+          "-c",
+          "exec \"$HERDR_PLUGIN_ROOT/target/release/herdr-agent-quota\" event"
+        ]
+      },
+      {
+        "on": "pane.agent_status_changed",
+        "command": [
+          "sh",
+          "-c",
+          "exec \"$HERDR_PLUGIN_ROOT/target/release/herdr-agent-quota\" event"
+        ]
+      },
+      {
+        "on": "pane.focused",
+        "command": [
+          "sh",
+          "-c",
+          "exec \"$HERDR_PLUGIN_ROOT/target/release/herdr-agent-quota\" focus"
+        ]
+      }
+    ],
+    "panes": [
+      {
+        "id": "dashboard",
+        "title": "Agent quota",
+        "placement": "popup",
+        "command": [
+          "sh",
+          "-c",
+          "exec \"$HERDR_PLUGIN_ROOT/target/release/herdr-agent-quota\" dashboard"
+        ]
+      },
+      {
+        "id": "settings",
+        "title": "Agent quota settings",
+        "placement": "popup",
+        "width": 78,
+        "height": 31,
+        "command": [
+          "sh",
+          "-c",
+          "exec \"$HERDR_PLUGIN_ROOT/target/release/herdr-agent-quota\" settings"
+        ]
+      }
+    ],
+    "source": {
+      "kind": "local"
+    }
+  },
+  {
+    "plugin_id": "herdr-automatic-rename",
+    "name": "Herdr Automatic Rename",
+    "version": "0.8.0",
+    "min_herdr_version": "0.7.1",
+    "description": "Auto-name tabs after where the work is and what is running there -- the directory, the branch, the machine reached over ssh, then the program or the task an agent reports -- and/or prefix workspaces, tabs, and agents with their 1-9 jump-key number. Each feature toggles via config.sh.",
+    "manifest_path": "/home/ecb/dotfiles/.config/herdr/plugins/github/herdr-automatic-rename-db02a35e1e35/herdr-plugin.toml",
+    "plugin_root": "/home/ecb/dotfiles/.config/herdr/plugins/github/herdr-automatic-rename-db02a35e1e35",
+    "enabled": true,
+    "platforms": [
+      "linux",
+      "macos"
+    ],
+    "startup": [
+      {
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "startup"
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "clear",
+        "title": "Herdr Automatic Rename: strip all number prefixes",
+        "contexts": [
+          "global"
+        ],
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "--clear"
+        ]
+      },
+      {
+        "id": "reset",
+        "title": "Reset tab to automatic naming",
+        "contexts": [
+          "global"
+        ],
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "reset"
+        ]
+      }
+    ],
+    "events": [
+      {
+        "on": "pane.agent_detected",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "pane.agent_detected"
+        ]
+      },
+      {
+        "on": "pane.agent_status_changed",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "pane.agent_status_changed"
+        ]
+      },
+      {
+        "on": "pane.closed",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "pane.closed"
+        ]
+      },
+      {
+        "on": "pane.created",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "pane.created"
+        ]
+      },
+      {
+        "on": "pane.exited",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "pane.exited"
+        ]
+      },
+      {
+        "on": "pane.focused",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "pane.focused"
+        ]
+      },
+      {
+        "on": "pane.moved",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "pane.moved"
+        ]
+      },
+      {
+        "on": "tab.closed",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "tab.closed"
+        ]
+      },
+      {
+        "on": "tab.created",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "tab.created"
+        ]
+      },
+      {
+        "on": "tab.focused",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "tab.focused"
+        ]
+      },
+      {
+        "on": "tab.moved",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "tab.moved"
+        ]
+      },
+      {
+        "on": "tab.renamed",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "tab.renamed"
+        ]
+      },
+      {
+        "on": "workspace.closed",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "workspace.closed"
+        ]
+      },
+      {
+        "on": "workspace.created",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "workspace.created"
+        ]
+      },
+      {
+        "on": "workspace.moved",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "workspace.moved"
+        ]
+      },
+      {
+        "on": "workspace.renamed",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "workspace.renamed"
+        ]
+      },
+      {
+        "on": "workspace.reordered",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "workspace.reordered"
+        ]
+      },
+      {
+        "on": "worktree.created",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "worktree.created"
+        ]
+      },
+      {
+        "on": "worktree.opened",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "worktree.opened"
+        ]
+      },
+      {
+        "on": "worktree.removed",
+        "command": [
+          "bash",
+          "automatic-rename.sh",
+          "worktree.removed"
+        ]
+      }
+    ],
+    "source": {
+      "kind": "github",
+      "owner": "qu8n",
+      "repo": "herdr-automatic-rename",
+      "resolved_commit": "bd0dfc4bf8053df13ebb527f213a0e74d1420e2c",
+      "managed_path": "/home/ecb/.config/herdr/plugins/github/herdr-automatic-rename-db02a35e1e35",
+      "installed_unix_ms": 1788374407770
     }
   },
   {
@@ -264,6 +616,76 @@
       "resolved_commit": "1d4a790e9cb88b63db7e88b3ddb82a03ab59751a",
       "managed_path": "/home/ecb/.config/herdr/plugins/github/herdr-file-viewer-c993314e2614",
       "installed_unix_ms": 1783986150397
+    }
+  },
+  {
+    "plugin_id": "herdr-float",
+    "name": "Herdr Float",
+    "version": "0.1.1",
+    "min_herdr_version": "0.7.4",
+    "description": "A native floating shell that persists independently in every Space.",
+    "manifest_path": "/home/ecb/dotfiles/.config/herdr/plugins/github/herdr-float-390fe3317b32/herdr-plugin.toml",
+    "plugin_root": "/home/ecb/dotfiles/.config/herdr/plugins/github/herdr-float-390fe3317b32",
+    "enabled": true,
+    "platforms": [
+      "linux",
+      "macos"
+    ],
+    "actions": [
+      {
+        "id": "stop-all",
+        "title": "Stop all floating shells",
+        "description": "Stop every persistent floating shell in the current Herdr session.",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "scripts/cleanup-all.sh"
+        ]
+      },
+      {
+        "id": "toggle",
+        "title": "Toggle floating shell",
+        "description": "Open the floating shell for the current Space.",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "scripts/toggle.sh"
+        ]
+      }
+    ],
+    "events": [
+      {
+        "on": "workspace.closed",
+        "command": [
+          "bash",
+          "scripts/cleanup-space.sh"
+        ]
+      }
+    ],
+    "panes": [
+      {
+        "id": "shell",
+        "title": "Floating shell · Alt/Option-F to hide",
+        "placement": "popup",
+        "width": "86%",
+        "height": "82%",
+        "command": [
+          "bash",
+          "scripts/popup-shell.sh"
+        ]
+      }
+    ],
+    "source": {
+      "kind": "github",
+      "owner": "meerzulee",
+      "repo": "herdr-float",
+      "resolved_commit": "6301b7e2c96c26b136b8bf31f5618f4970c529ce",
+      "managed_path": "/home/ecb/.config/herdr/plugins/github/herdr-float-390fe3317b32",
+      "installed_unix_ms": 1789404549709
     }
   },
   {
@@ -437,6 +859,190 @@
     }
   },
   {
+    "plugin_id": "hhdebb.herdr-radar",
+    "name": "Herdr Radar",
+    "version": "1.3.12",
+    "min_herdr_version": "0.9.0",
+    "description": "Who's working, who's waiting on you — grouped by project, each agent in its vendor's logo and colour. Worktrees nest under their repo, rows order by activity, idle sessions fade. Light and dark.",
+    "manifest_path": "/home/ecb/dotfiles/.config/herdr/plugins/github/hhdebb.herdr-radar-afabda667cbe/herdr-plugin.toml",
+    "plugin_root": "/home/ecb/dotfiles/.config/herdr/plugins/github/hhdebb.herdr-radar-afabda667cbe",
+    "enabled": true,
+    "platforms": [
+      "linux",
+      "macos",
+      "windows"
+    ],
+    "build": [
+      {
+        "command": [
+          "node",
+          "bin/setup.js"
+        ]
+      }
+    ],
+    "startup": [
+      {
+        "command": [
+          "node",
+          "bin/agent-icons.js"
+        ]
+      },
+      {
+        "command": [
+          "node",
+          "bin/agent-state.js"
+        ]
+      },
+      {
+        "command": [
+          "node",
+          "bin/agent-view.js",
+          "--reapply"
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "configure",
+        "title": "Configure: install the sidebar, tab-bar and theme blocks",
+        "description": "Write (or repair) the three managed blocks in Herdr's config.toml and reload.",
+        "command": [
+          "node",
+          "bin/configure.js",
+          "--apply",
+          "--reload"
+        ]
+      },
+      {
+        "id": "install-font",
+        "title": "Font: install for this user and map codepoints in the terminal",
+        "description": "Copy the icon font into your user font directory (no admin needed) and write the codepoint map into ghostty/kitty configs that exist; other terminals get instructions in the log.",
+        "command": [
+          "node",
+          "bin/install-font.js"
+        ]
+      },
+      {
+        "id": "refresh",
+        "title": "Agent icons: refresh",
+        "description": "Reapply icon variants to all current panes.",
+        "command": [
+          "node",
+          "bin/agent-icons.js"
+        ]
+      },
+      {
+        "id": "settings",
+        "title": "Settings",
+        "description": "Open the settings popup.",
+        "command": [
+          "node",
+          "bin/settings.js",
+          "--open"
+        ]
+      },
+      {
+        "id": "state-start",
+        "title": "Agent state: start animator",
+        "description": "Start the lifecycle-state glyph animator.",
+        "command": [
+          "node",
+          "bin/agent-state.js"
+        ]
+      },
+      {
+        "id": "state-stop",
+        "title": "Agent state: stop animator",
+        "description": "Stop the lifecycle-state glyph animator and clear its marks. Titles and sort keys stay so the list stays readable; unconfigure clears everything.",
+        "command": [
+          "node",
+          "bin/agent-state.js",
+          "--stop"
+        ]
+      },
+      {
+        "id": "unconfigure",
+        "title": "Configure: remove the managed blocks",
+        "description": "Stop the daemon, clear every token it wrote, remove the three managed blocks from Herdr's config.toml and reload. Do this before uninstalling.",
+        "command": [
+          "node",
+          "bin/configure.js",
+          "--uninstall",
+          "--reload"
+        ]
+      },
+      {
+        "id": "uninstall-font",
+        "title": "Font: remove",
+        "description": "Remove the installed icon font and the terminal codepoint map this plugin wrote.",
+        "command": [
+          "node",
+          "bin/install-font.js",
+          "--uninstall"
+        ]
+      },
+      {
+        "id": "view-flip",
+        "title": "Agents: active <-> recent",
+        "description": "Flip between grouped-by-activity and flat-by-activity without leaving the plugin's order.",
+        "command": [
+          "node",
+          "bin/agent-view.js",
+          "--flip"
+        ]
+      },
+      {
+        "id": "view-native",
+        "title": "Agents: Herdr's panel <-> ours",
+        "description": "Toggle the whole Agents panel — order and row colours — between Herdr's own and the plugin's.",
+        "command": [
+          "node",
+          "bin/agent-view.js",
+          "--native"
+        ]
+      },
+      {
+        "id": "view-toggle",
+        "title": "Agents: cycle order (active / recent / off)",
+        "description": "Cycle the Agents panel: grouped by activity, flat by activity, or the panel's own order.",
+        "command": [
+          "node",
+          "bin/agent-view.js"
+        ]
+      }
+    ],
+    "events": [
+      {
+        "on": "pane.agent_detected",
+        "command": [
+          "node",
+          "bin/agent-state.js"
+        ]
+      }
+    ],
+    "panes": [
+      {
+        "id": "settings",
+        "title": "herdr-radar settings",
+        "placement": "popup",
+        "width": 84,
+        "height": 26,
+        "command": [
+          "node",
+          "bin/settings.js"
+        ]
+      }
+    ],
+    "source": {
+      "kind": "github",
+      "owner": "hhdebb",
+      "repo": "herdr-radar",
+      "resolved_commit": "aff48389d2c9a8db0bb4b7f548b643f4ab4d86bb",
+      "managed_path": "/home/ecb/.config/herdr/plugins/github/hhdebb.herdr-radar-afabda667cbe",
+      "installed_unix_ms": 1789965164115
+    }
+  },
+  {
     "plugin_id": "official.browser",
     "name": "Browser",
     "version": "0.1.0",
@@ -595,6 +1201,75 @@
       "resolved_commit": "d172ea257ea39bc0eddc9608df1c405744c19e56",
       "managed_path": "/home/ecb/.config/herdr/plugins/github/persiyanov.reviewr-e87b654a74f8",
       "installed_unix_ms": 1787626159700
+    }
+  },
+  {
+    "plugin_id": "ray.file-explorer",
+    "name": "Yazi Explorer",
+    "version": "1.1.0",
+    "min_herdr_version": "0.7.0",
+    "description": "Open Yazi (terminal file manager) in a herdr pane",
+    "manifest_path": "/home/ecb/dotfiles/.config/herdr/plugins/github/ray.file-explorer-921f378e3e1b/herdr-plugin.toml",
+    "plugin_root": "/home/ecb/dotfiles/.config/herdr/plugins/github/ray.file-explorer-921f378e3e1b",
+    "enabled": true,
+    "platforms": [
+      "linux",
+      "macos"
+    ],
+    "build": [
+      {
+        "command": [
+          "bash",
+          "-c",
+          "command -v yazi >/dev/null 2>&1 || { [ \"$(uname -s)\" = \"Darwin\" ] && command -v brew >/dev/null 2>&1 && exec brew install yazi; echo \"Yazi is required. Install it from https://yazi-rs.github.io/docs/installation\" >&2; exit 1; }"
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "open",
+        "title": "Open file explorer",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "-c",
+          "DIR=\"$(bash \"$HERDR_PLUGIN_ROOT/bin/resolve-dir.sh\")\"; exec \"${HERDR_BIN_PATH:-herdr}\" plugin pane open --plugin ray.file-explorer --entrypoint explorer --placement split --cwd \"$DIR\""
+        ]
+      },
+      {
+        "id": "open-tab",
+        "title": "Open file explorer (new tab)",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "-c",
+          "DIR=\"$(bash \"$HERDR_PLUGIN_ROOT/bin/resolve-dir.sh\")\"; exec \"${HERDR_BIN_PATH:-herdr}\" plugin pane open --plugin ray.file-explorer --entrypoint explorer --placement tab --cwd \"$DIR\""
+        ]
+      }
+    ],
+    "panes": [
+      {
+        "id": "explorer",
+        "title": "Explorer",
+        "placement": "split",
+        "command": [
+          "bash",
+          "-c",
+          "exec yazi"
+        ]
+      }
+    ],
+    "source": {
+      "kind": "github",
+      "owner": "speardragon",
+      "repo": "herdr-yazi",
+      "resolved_commit": "54aa4e6dff480189630fa3593146cdcc2768ade9",
+      "managed_path": "/home/ecb/.config/herdr/plugins/github/ray.file-explorer-921f378e3e1b",
+      "installed_unix_ms": 1789404308468
     }
   },
   {
@@ -982,7 +1657,7 @@
     "name": "Worktrunk",
     "version": "0.1.0",
     "min_herdr_version": "0.7.0",
-    "description": "Switch, create, or remove git worktrees via worktrunk",
+    "description": "Switch, create, remove, or merge git worktrees via worktrunk",
     "manifest_path": "/home/ecb/dotfiles/.config/herdr/plugins/github/worktrunk-7fb519583f31/herdr-plugin.toml",
     "plugin_root": "/home/ecb/dotfiles/.config/herdr/plugins/github/worktrunk-7fb519583f31",
     "enabled": true,
@@ -992,6 +1667,30 @@
     ],
     "actions": [
       {
+        "id": "merge",
+        "title": "Worktree: merge into the target branch",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/open.sh\" merger"
+        ]
+      },
+      {
+        "id": "merge-no-squash",
+        "title": "Worktree: merge into the target branch, keeping every commit",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/open.sh\" merger-no-squash"
+        ]
+      },
+      {
         "id": "open",
         "title": "Worktree: switch / create from default branch",
         "contexts": [
@@ -1000,7 +1699,7 @@
         "command": [
           "bash",
           "-c",
-          "cwd=$(jq -r '.workspace_cwd // .focused_pane_cwd' <<<\"$HERDR_PLUGIN_CONTEXT_JSON\"); exec \"$HERDR_BIN_PATH\" plugin pane open --plugin \"$HERDR_PLUGIN_ID\" --entrypoint picker-default --placement split --direction down --cwd \"$cwd\" --focus"
+          "exec bash \"$HERDR_PLUGIN_ROOT/open.sh\" picker-default"
         ]
       },
       {
@@ -1012,7 +1711,19 @@
         "command": [
           "bash",
           "-c",
-          "cwd=$(jq -r '.workspace_cwd // .focused_pane_cwd' <<<\"$HERDR_PLUGIN_CONTEXT_JSON\"); exec \"$HERDR_BIN_PATH\" plugin pane open --plugin \"$HERDR_PLUGIN_ID\" --entrypoint picker-current --placement split --direction down --cwd \"$cwd\" --focus"
+          "exec bash \"$HERDR_PLUGIN_ROOT/open.sh\" picker-current"
+        ]
+      },
+      {
+        "id": "open-with-remotes",
+        "title": "Worktree: switch / create from local or remote branches",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "bash",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/open.sh\" picker-with-remotes"
         ]
       },
       {
@@ -1024,11 +1735,31 @@
         "command": [
           "bash",
           "-c",
-          "cwd=$(jq -r '.workspace_cwd // .focused_pane_cwd' <<<\"$HERDR_PLUGIN_CONTEXT_JSON\"); exec \"$HERDR_BIN_PATH\" plugin pane open --plugin \"$HERDR_PLUGIN_ID\" --entrypoint remover --placement split --direction down --cwd \"$cwd\" --focus"
+          "exec bash \"$HERDR_PLUGIN_ROOT/open.sh\" remover"
         ]
       }
     ],
     "panes": [
+      {
+        "id": "merger",
+        "title": "Worktrunk — merge",
+        "placement": "split",
+        "command": [
+          "bash",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/merge.sh\""
+        ]
+      },
+      {
+        "id": "merger-no-squash",
+        "title": "Worktrunk — merge (no squash)",
+        "placement": "split",
+        "command": [
+          "bash",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/merge.sh\" --no-squash"
+        ]
+      },
       {
         "id": "picker-current",
         "title": "Worktrunk — current branch",
@@ -1050,6 +1781,16 @@
         ]
       },
       {
+        "id": "picker-with-remotes",
+        "title": "Worktrunk — local and remote branches",
+        "placement": "split",
+        "command": [
+          "bash",
+          "-c",
+          "exec bash \"$HERDR_PLUGIN_ROOT/picker.sh\" --show-with-remotes"
+        ]
+      },
+      {
         "id": "remover",
         "title": "Worktrunk — remove",
         "placement": "split",
@@ -1064,9 +1805,59 @@
       "kind": "github",
       "owner": "devashish2203",
       "repo": "herdr-worktrunk",
-      "resolved_commit": "a3107ca566bafcd463bc138007a0c01051970784",
+      "resolved_commit": "4be9bbbaab1dfbecc81b298d30624052d0c432d1",
       "managed_path": "/home/ecb/.config/herdr/plugins/github/worktrunk-7fb519583f31",
-      "installed_unix_ms": 1785445134232
+      "installed_unix_ms": 1789353760009
+    }
+  },
+  {
+    "plugin_id": "zenbu-labs.terminal-browser",
+    "name": "Terminal Browser",
+    "version": "0.1.1",
+    "min_herdr_version": "0.8.2",
+    "description": "Open a browser inside herdr",
+    "manifest_path": "/home/ecb/dotfiles/.config/herdr/plugins/github/zenbu-labs.terminal-browser-af24e09053e7/herdr-plugin/herdr-plugin.toml",
+    "plugin_root": "/home/ecb/dotfiles/.config/herdr/plugins/github/zenbu-labs.terminal-browser-af24e09053e7/herdr-plugin",
+    "enabled": true,
+    "platforms": [
+      "linux",
+      "macos"
+    ],
+    "build": [
+      {
+        "platforms": [
+          "linux",
+          "macos"
+        ],
+        "command": [
+          "bash",
+          "-c",
+          "set -o pipefail; curl -fsSL https://terminal-browser.sh/install | bash"
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "open-split",
+        "title": "Open terminal-browser (right split)",
+        "description": "Split the focused pane and open terminal-browser in it",
+        "contexts": [
+          "global"
+        ],
+        "command": [
+          "bash",
+          "open-split.sh"
+        ]
+      }
+    ],
+    "source": {
+      "kind": "github",
+      "owner": "zenbu-labs",
+      "repo": "terminal-browser",
+      "subdir": "herdr-plugin",
+      "resolved_commit": "90ee8f5fc19d2e9b69c0a17988ee70aa154714ff",
+      "managed_path": "/home/ecb/.config/herdr/plugins/github/zenbu-labs.terminal-browser-af24e09053e7",
+      "installed_unix_ms": 1788367522878
     }
   }
 ]

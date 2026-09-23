@@ -13,11 +13,20 @@
           "id": "omarchy.weather"
         },
         {
+          "id": "tobiasz-p.next-event",
+          "calendarUrlBase": "https://calendar.google.com/calendar/u/1/r",
+          "eventsJsonPath": "/home/ecb/.local/state/omarchy/calendar-events.json",
+          "keyRefresh": "r",
+          "sourceMode": "json",
+          "icsUrl": ""
+        },
+        {
           "id": "io.github.sumdahl.media"
         },
         {
+          "id": "tmn73.calendar",
           "announceLeadMinutes": 30,
-          "format": "ddd d MMM h:mm AP",
+          "format": "ddd d MMM HH:mm",
           "hiddenCalendars": [
             "c_53ba404193c8488c16e80e01e50c063e0d2d29cb81c5cf97b171efa4cb4179fc@group.calendar.google.com",
             "eliseubrito776@gmail.com",
@@ -30,11 +39,13 @@
             "c_61f363d0a583152a2b2e7b0f2e1b4a7ba38a18a1678289d1b1d232072f4cb0e4@group.calendar.google.com",
             "h6qrnjvrpbog97g8mrn0pgdmhe926lq9@import.calendar.google.com"
           ],
-          "id": "tmn73.calendar",
           "verticalFormat": "h\n—\nmm\nAP"
         },
         {
           "id": "omarchy.system-update"
+        },
+        {
+          "id": "ecb.taskle"
         }
       ],
       "left": [
@@ -42,10 +53,13 @@
           "id": "omarchy.menu"
         },
         {
-          "id": "omarchy.workspaces"
+          "id": "better-workspaces"
         },
         {
           "id": "bibek.focusd"
+        },
+        {
+          "id": "jankeesvw.herdr"
         },
         {
           "id": "io.github.gardnmi.window-shelf"
@@ -56,6 +70,9 @@
           "id": "omarchy.tray"
         },
         {
+          "id": "dev.egoist.memory-usage"
+        },
+        {
           "host": "gitlab.cin.ufpe.br",
           "id": "io.github.edgarsilva.gitlab-ci"
         },
@@ -63,28 +80,30 @@
           "id": "gpdenny.linear"
         },
         {
-          "id": "emils.localhost"
-        },
-        {
           "id": "io.github.fabean.herdr"
-        },
-        {
-          "id": "jankeesvw.notification-center"
-        },
-        {
-          "id": "wyatt.lull"
-        },
-        {
-          "id": "crmne.hyprmoncfg"
         },
         {
           "id": "omarchy.tailscale"
         },
         {
-          "id": "ecb.vpn"
+          "id": "david.macnook",
+          "items": [
+            {
+              "id": "io.github.imryiuk.workspace-profiles"
+            },
+            {
+              "id": "crmne.hyprmoncfg"
+            },
+            {
+              "id": "omarchy.agents"
+            },
+            {
+              "id": "emils.localhost"
+            }
+          ]
         },
         {
-          "id": "omarchy.agents"
+          "id": "ecb.vpn"
         },
         {
           "id": "omarchy.bluetooth"
@@ -99,7 +118,11 @@
           "id": "omarchy.monitor"
         },
         {
-          "id": "omarchy.power"
+          "id": "omarchy.power",
+          "showPercentage": true
+        },
+        {
+          "id": "jankeesvw.notification-center"
         }
       ]
     },
@@ -125,7 +148,25 @@
       "id": "blizl.voxtype-osd"
     },
     {
-      "id": "expose.window-overview"
+      "id": "tony.omatabs"
+    },
+    {
+      "id": "io.github.imryiuk.workspace-profiles"
+    },
+    {
+      "id": "crmne.hyprmoncfg"
+    },
+    {
+      "id": "omarchy.agents"
+    },
+    {
+      "id": "emils.localhost"
+    },
+    {
+      "id": "macos.dock"
+    },
+    {
+      "id": "io.github.davidkim-sometimes-davekim.capture"
     }
   ],
   "version": 1

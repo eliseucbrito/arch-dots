@@ -1,6 +1,6 @@
 onboarding = false
 [theme]
-name = "nord"
+name = "vesper"
 auto_switch = false
 light_name = "catppuccin-latte"
 dark_name = "catppuccin"
@@ -9,19 +9,20 @@ dark_name = "catppuccin"
 default_shell = "fish"
 shell_mode = "non_login"
 new_cwd = "follow"
+kitty_graphics = true
 
 [keys]
 prefix = "ctrl+b"
 
 # Pane navigation (prefix + vim keys) + direct ctrl+alt chords
-focus_pane_left = ["prefix+h", "ctrl+alt+h"]
-focus_pane_down = ["prefix+j", "ctrl+alt+j"]
-focus_pane_up = ["prefix+k", "ctrl+alt+k"]
-focus_pane_right = ["prefix+l", "ctrl+alt+l"]
+focus_pane_left = ["prefix+h","alt+h"]
+focus_pane_down = ["prefix+j", "alt+j"]
+focus_pane_up = ["prefix+k", "alt+k"]
+focus_pane_right = ["prefix+l", "alt+l"]
 
 # Tab navigation
-next_tab = ["prefix+n", "ctrl+alt+]"]
-previous_tab = ["prefix+p", "ctrl+alt+["]
+next_tab = ["prefix+n", "ctrl+alt+right"]
+previous_tab = ["prefix+p", "ctrl+alt+left"]
 new_tab = ["prefix+c", "ctrl+alt+c"]
 close_tab = "prefix+shift+x"
 
@@ -67,16 +68,17 @@ sidebar_max_width = 36
 sidebar_collapsed_mode = "compact"
 mouse_capture = true
 confirm_close = true
-prompt_new_tab_name = true
+prompt_new_tab_name = false
 pane_borders = true
 pane_gaps = true
 hide_tab_bar_when_single_tab = true
 agent_panel_sort = "priority"
 
 show_agent_labels_on_pane_borders = true
+status_indicators = "symbols"
 [ui.toast]
 delivery = "system"
-delay_seconds = 1
+delay_seconds = 2
 
 [ui.toast.herdr]
 position = "bottom-right"
@@ -88,6 +90,17 @@ position = "bottom-center"
 [ui.sound]
 enabled = true
 
+[ui.sidebar]
+
+[ui.sidebar.agents]
+row_gap = 1 # herdr-agent-quota
+# rows = [["state_icon", { token = "tab", bold = true, dim = false }, { token = "$quota_provider_model", bold = true, dim = false }], [{ token = "$quota_topic", bold = false, dim = false }], [{ token = "$quota_cache", bold = false, dim = false }, { token = "$quota_cache_ttl", bold = false, dim = false }, { token = "$quota_cache_state", fg = "#e4b957", bold = false, dim = false }, { token = "$quota_error", fg = "#e4b957", bold = false, dim = false }], [{ token = "$quota_context", bold = false, dim = false }, { token = "$quota_week_inline_normal", fg = "#82d978", bold = false, dim = false }, { token = "$quota_week_inline_warning", fg = "#e4b957", bold = false, dim = false }, { token = "$quota_week_inline_danger", fg = "#f16f7e", bold = false, dim = false }, { token = "$quota_week_inline_unknown", bold = false, dim = false }], [{ token = "$quota_5h_normal", fg = "#82d978", bold = false, dim = false }, { token = "$quota_5h_warning", fg = "#e4b957", bold = false, dim = false }, { token = "$quota_5h_danger", fg = "#f16f7e", bold = false, dim = false }, { token = "$quota_5h_unknown", bold = false, dim = false }, { token = "$quota_week_normal", fg = "#82d978", bold = false, dim = false }, { token = "$quota_week_warning", fg = "#e4b957", bold = false, dim = false }, { token = "$quota_week_danger", fg = "#f16f7e", bold = false, dim = false }, { token = "$quota_week_unknown", bold = false, dim = false }]] # herdr-agent-quota-row
+#
+# [ui.sidebar.agents.rows_by_agent]
+# agy = [["state_icon", { token = "tab", bold = true, dim = false }, { token = "$quota_provider_model", fg = "#8ab4f8", bold = true, dim = false }], [{ token = "$quota_topic", bold = false, dim = false }], [{ token = "$quota_cache", bold = false, dim = false }, { token = "$quota_cache_ttl", bold = false, dim = false }, { token = "$quota_cache_state", fg = "#e4b957", bold = false, dim = false }, { token = "$quota_error", fg = "#e4b957", bold = false, dim = false }], [{ token = "$quota_context", bold = false, dim = false }, { token = "$quota_week_inline_normal", fg = "#82d978", bold = false, dim = false }, { token = "$quota_week_inline_warning", fg = "#e4b957", bold = false, dim = false }, { token = "$quota_week_inline_danger", fg = "#f16f7e", bold = false, dim = false }, { token = "$quota_week_inline_unknown", bold = false, dim = false }], [{ token = "$quota_5h_normal", fg = "#82d978", bold = false, dim = false }, { token = "$quota_5h_warning", fg = "#e4b957", bold = false, dim = false }, { token = "$quota_5h_danger", fg = "#f16f7e", bold = false, dim = false }, { token = "$quota_5h_unknown", bold = false, dim = false }, { token = "$quota_week_normal", fg = "#82d978", bold = false, dim = false }, { token = "$quota_week_warning", fg = "#e4b957", bold = false, dim = false }, { token = "$quota_week_danger", fg = "#f16f7e", bold = false, dim = false }, { token = "$quota_week_unknown", bold = false, dim = false }]] # herdr-agent-quota-provider
+# claude = [["state_icon", { token = "tab", bold = true, dim = false }, { token = "$quota_provider_model", fg = "#e88461", bold = true, dim = false }], [{ token = "$quota_topic", bold = false, dim = false }], [{ token = "$quota_cache", bold = false, dim = false }, { token = "$quota_cache_ttl", bold = false, dim = false }, { token = "$quota_cache_state", fg = "#e4b957", bold = false, dim = false }, { token = "$quota_error", fg = "#e4b957", bold = false, dim = false }], [{ token = "$quota_context", bold = false, dim = false }, { token = "$quota_week_inline_normal", fg = "#82d978", bold = false, dim = false }, { token = "$quota_week_inline_warning", fg = "#e4b957", bold = false, dim = false }, { token = "$quota_week_inline_danger", fg = "#f16f7e", bold = false, dim = false }, { token = "$quota_week_inline_unknown", bold = false, dim = false }], [{ token = "$quota_5h_normal", fg = "#82d978", bold = false, dim = false }, { token = "$quota_5h_warning", fg = "#e4b957", bold = false, dim = false }, { token = "$quota_5h_danger", fg = "#f16f7e", bold = false, dim = false }, { token = "$quota_5h_unknown", bold = false, dim = false }, { token = "$quota_week_normal", fg = "#82d978", bold = false, dim = false }, { token = "$quota_week_warning", fg = "#e4b957", bold = false, dim = false }, { token = "$quota_week_danger", fg = "#f16f7e", bold = false, dim = false }, { token = "$quota_week_unknown", bold = false, dim = false }]] # herdr-agent-quota-provider
+# opencode = [["state_icon", { token = "tab", bold = true, dim = false }, { token = "$quota_provider_model", bold = true, dim = false }], [{ token = "$quota_topic", bold = false, dim = false }], [{ token = "$quota_cache", bold = false, dim = false }, { token = "$quota_cache_ttl", bold = false, dim = false }, { token = "$quota_cache_state", fg = "#e4b957", bold = false, dim = false }, { token = "$quota_error", fg = "#e4b957", bold = false, dim = false }], [{ token = "$quota_context", bold = false, dim = false }, { token = "$quota_week_inline_normal", fg = "#82d978", bold = false, dim = false }, { token = "$quota_week_inline_warning", fg = "#e4b957", bold = false, dim = false }, { token = "$quota_week_inline_danger", fg = "#f16f7e", bold = false, dim = false }, { token = "$quota_week_inline_unknown", bold = false, dim = false }], [{ token = "$quota_5h_normal", fg = "#82d978", bold = false, dim = false }, { token = "$quota_5h_warning", fg = "#e4b957", bold = false, dim = false }, { token = "$quota_5h_danger", fg = "#f16f7e", bold = false, dim = false }, { token = "$quota_5h_unknown", bold = false, dim = false }, { token = "$quota_week_normal", fg = "#82d978", bold = false, dim = false }, { token = "$quota_week_warning", fg = "#e4b957", bold = false, dim = false }, { token = "$quota_week_danger", fg = "#f16f7e", bold = false, dim = false }, { token = "$quota_week_unknown", bold = false, dim = false }]] # herdr-agent-quota-provider
+#
 [advanced]
 scrollback_limit_bytes = 10485760
 
@@ -118,7 +131,6 @@ command = "herdr plugin action invoke taskle.open-board"
 [experimental]
 pane_history = true
 switch_ascii_input_source_in_prefix = true
-kitty_graphics = true
 
 [[keys.command]]
 key = "prefix+e"
@@ -131,3 +143,97 @@ key = "prefix+o"
 type = "plugin_action"
 command = "chmarax.herdr-nvim.pick-file"
 description = "open file from agent output"
+
+[[keys.command]]
+key = "prefix+shift+r"
+type = "plugin_action"
+command = "herdr-agent-quota.refresh"
+description = "refresh all agent quotas"
+
+[[keys.command]]
+key = "prefix+shift+q"
+type = "plugin_action"
+command = "herdr-agent-quota.open-settings"
+description = "open agent quota settings"
+
+[sidebar]
+nvim_bin = "nvim"     # binary used to spawn the per-tab nvim daemon
+nvim_env = []         # env overrides for that nvim, applied to the daemon,
+                      # the sidebar window, and open-file clients. For
+                      # example, nvim_env = ["NVIM_APPNAME=myapp"] runs the
+                      # sidebar under the config in ~/.config/myapp instead
+                      # of vanilla nvim (replace myapp with your app name).
+position = "right"    # right (default), left, top, or bottom
+
+[picker]
+scan_lines = 300    # pane lines scanned by the fallback text-scrape
+max_files = 20      # session entries shown before you type a query
+                    # (a typed query fuzzy-searches the whole repo, uncapped)
+frecency = true     # let fff reuse ~/.cache/nvim/fff_nvim (read-only copy)
+
+[[keys.command]]
+key = "prefix+a"
+type = "plugin_action"
+command = "hhdebb.herdr-radar.view-flip"       # order: active <-> recent
+
+[[keys.command]]
+key = "prefix+comma"
+type = "plugin_action"
+command = "hhdebb.herdr-radar.settings"        # settings popup
+
+# >>> herdr-radar theme block
+[theme.custom]
+active_row_bg = "#414868"
+# <<< herdr-radar theme block
+
+# Override herdr's built-in "new worktree" key (prefix+shift+g) with worktrunk's
+# default-branch switch/create picker:
+[[keys.command]]
+key = "prefix+shift+g"
+type = "plugin_action"
+command = "worktrunk.open"
+description = "Worktree: switch / create from default branch"
+
+# Optional: bind current-branch creation separately.
+[[keys.command]]
+key = "prefix+shift+c"
+type = "plugin_action"
+command = "worktrunk.open-current"
+description = "Worktree: switch / create from current branch"
+
+# Optional: include remote-tracking branches for this picker.
+[[keys.command]]
+key = "prefix+shift+r"
+type = "plugin_action"
+command = "worktrunk.open-with-remotes"
+description = "Worktree: switch / create from local or remote branches"
+
+[[keys.command]]
+key = "prefix+shift+d"
+type = "plugin_action"
+command = "worktrunk.remove"
+description = "Worktree: remove"
+
+[[keys.command]]
+key = "prefix+shift+m"
+type = "plugin_action"
+command = "worktrunk.merge"
+description = "Worktree: merge into the target branch"
+
+[[keys.command]]              # open in a split pane
+key = "prefix+y"
+type = "plugin_action"
+command = "ray.file-explorer.open"
+description = "open file explorer"
+
+[[keys.command]]              # open in a new tab
+key = "prefix+Y"
+type = "plugin_action"
+command = "ray.file-explorer.open-tab"
+description = "open file explorer in a new tab"
+
+[[keys.command]]
+key = "alt+f"
+type = "plugin_action"
+command = "herdr-float.toggle"
+description = "Toggle floating shell"

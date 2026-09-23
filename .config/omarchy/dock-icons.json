@@ -1,0 +1,22 @@
+{
+  "com.rtosta.zapzap": {
+    "file": "com.rtosta.zapzap.png",
+    "imageUrl": "https://s3-new.macosicons.com/macosicons/parse/Whatsapp_6R8vxxcDSG_iOS-2777045b50.png",
+    "source": "https://s3-new.macosicons.com/macosicons/parse/Whatsapp_6R8vxxcDSG_iOS-2777045b50.png"
+  },
+  "kitty": {
+    "file": "kitty.png",
+    "imageUrl": "https://s3-new.macosicons.com/macosicons/parse/kitty_WMxq4vHgV6_iOS-b366f104f9.png",
+    "source": "https://s3-new.macosicons.com/macosicons/parse/kitty_WMxq4vHgV6_iOS-b366f104f9.png"
+  },
+  "org.gnome.Nautilus": {
+    "file": "org.gnome.Nautilus.png",
+    "imageUrl": "https://s3-new.macosicons.com/macosicons/parse/Nautilus__Gnome_Files__Alt__Purple__x4ORFxwFFK_iOS-9e050d90a2.png",
+    "source": "https://s3-new.macosicons.com/macosicons/parse/Nautilus__Gnome_Files__Alt__Purple__x4ORFxwFFK_iOS-9e050d90a2.png"
+  },
+  "org.qbittorrent.qBittorrent": {
+    "file": "org.qbittorrent.qBittorrent.png",
+    "imageUrl": "https://s3-new.macosicons.com/macosicons/parse/qBittorrent_lwgUc1PiBH_iOS-f09b331ff5.png",
+    "source": "https://s3-new.macosicons.com/macosicons/parse/qBittorrent_lwgUc1PiBH_iOS-f09b331ff5.png"
+  }
+}

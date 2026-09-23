@@ -31,6 +31,10 @@ require("default.hypr.toggles")
 o.window("omawrite", { float = true, center = true })
 o.window("org.omarchy.dooing", { float = true, center = true, size = { 900, 620 } })
 o.window("org.omarchy.taskle", { float = true, center = true, size = { 900, 620 } })
+o.window("org.omarchy.snip", { float = true, center = true, size = { 900, 620 } })
+
+
+pcall(require, "/home/ecb/.config/hypr/openwhispr-binds.lua")
 
 -- Added by hyprmoncfg: its generated monitor rules load last, so nothing before this can override the applied layout.
-dofile(os.getenv("HOME") .. "/.config/hypr/hyprmoncfg-monitors.lua")
+do local path = os.getenv("HOME") .. "/.config/hypr/hyprmoncfg-monitors.lua"; local file = io.open(path, "r"); if file then file:close(); dofile(path) end end

@@ -34,9 +34,17 @@ hosts is handed to the bridge and dropped. This holds **even for bridges with no
 containers** — a `linkdown` `br-*` keeps its route in the main table, and the kernel still
 uses it unless `net.ipv4.conf.all.ignore_routes_with_linkdown=1`.
 
+This bites the **wired CIn network too** (no VPN): `manager1.cin.ufpe.br` and the servers are
+`172.21.x`, and a `nextjs15-demo_default`-style bridge on `172.21.0.0/16` swallows them the
+moment `docker compose up` brings it up. It also collides with the **VPN's own virtual-IP
+range**: strongSwan hands out `172.23.x`, and a bridge on `172.23.0.0/16` (e.g. a
+`keycloak-net`) shadows the tunnel's source subnet.
+
 **Permanent fix — move all of Docker out of `172.16.0.0/12`** into the `10.x` space (your LAN
 is `192.168.x`, the VPN is `172.x`, so `10.x` is free), so *new* networks never land there
-again. In `/etc/docker/daemon.json`:
+again. This repo ships it: **`sudo make system`** installs `system/etc/docker/daemon.json`,
+the resolved drop-in, the `ignore_routes_with_linkdown` sysctl, and `docker-net-guard`, then
+recreates existing bridges on the new pool. Contents of `/etc/docker/daemon.json`:
 
 ```json
 {
@@ -71,7 +79,8 @@ docker network rm <name>
 
 Then apply: `sudo systemctl restart docker && sudo systemctl restart systemd-resolved`. Verify
 with `ip route | grep 172` (empty) and by creating a throwaway network — it should land in
-`10.100.x`.
+`10.100.x`. `sudo make system` does all of this; afterward `docker-net-guard` fails CI/your
+shell if any network creeps back into `172.16/12`.
 
 ### Bug #2 — the tunnel's routing rule is missing
 
@@ -113,21 +122,39 @@ counter starts climbing, and DNS/internal hosts come alive. (In full-tunnel mode
 ## Wired CIn network — DNS resolves but connections time out
 
 Symptoms: on the CIn wired network (no VPN needed there), `resolvectl query <host>.cin.ufpe.br`
-resolves correctly and fast via the DHCP-provided CIn resolvers (`eno1` link), routing looks
-normal (`ip route get <ip>` goes straight out `eno1` to the gateway), but `curl`/`ping` to that
-IP just time out. No `172.16.0.0/12` route shadowing was present — the Docker bridges were
-already on `10.x`/`192.168.x` (see [Bug #1](#bug-1--a-docker-bridge-shadows-the-tunnels-subnets)),
-so this isn't the same route-shadowing mechanism, but the symptom (reachability broken with
-correct DNS) and the fix are the same family.
+resolves correctly and fast via the DHCP-provided CIn resolvers (`eno1` link), but `curl`/`ping`
+to that IP just times out. Also seen **with the VPN connected**: `manager1.cin.ufpe.br:7443`
+and `ssh` to the servers hang.
 
-**Fix:**
+This is [Bug #1](#bug-1--a-docker-bridge-shadows-the-tunnels-subnets). It recurred because the
+permanent fix had never actually been written to `/etc/docker/daemon.json` — the file still had
+`"bip": "172.17.0.1/16"` and no `default-address-pools`, so Docker kept handing new project
+networks `172.18`–`172.23`. `nextjs15-demo_default` landed on `172.21.0.0/16` (shadowing
+`manager1` and the resolvers) and `nextjs15-demo_keycloak-net` on `172.23.0.0/16` (the VPN's
+own virtual-IP block). Deleting the route by hand works until the next `docker` restart or
+reboot.
+
+**Diagnose:**
 
 ```bash
-sudo systemctl restart docker && sudo systemctl restart systemd-resolved
+ip route show | grep -E '172\.(1[6-9]|2[0-9]|3[01])\.'   # any hit = a bridge shadowing CIn
+docker network ls --format '{{.Name}}' | while read n; do \
+  printf '%s ' "$n"; docker network inspect "$n" -f '{{range .IPAM.Config}}{{.Subnet}} {{end}}'; echo; done
 ```
 
-Likely a stuck `systemd-resolved` state/cache rather than Docker itself, but restarting both
-together is the known-working sequence — hasn't been isolated further yet.
+**Temporary unblock** (gone after `docker` restart / reboot):
+
+```bash
+sudo ip route del 172.21.0.0/16 dev br-XXXX   # the dev name from the grep above
+```
+
+**Permanent fix — `sudo make system`** (from this repo). It installs
+`system/etc/docker/daemon.json` (Docker → `10.99`/`10.100`/`10.101`), the resolved drop-in,
+the `ignore_routes_with_linkdown=1` sysctl, and `/usr/local/bin/docker-net-guard`, then
+recreates existing bridges on the new pool. Re-run after `git pull` if `system/` changed. The
+old blunt workaround (`sudo systemctl restart docker && sudo systemctl restart systemd-resolved`)
+only helps when it's a stale `systemd-resolved` cache, not the route shadowing — check the
+`ip route` grep first.
 
 ## Minikube — pods stuck ImagePullBackOff, DNS SERVFAIL inside the node
 

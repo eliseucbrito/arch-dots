@@ -1,0 +1,6 @@
+open_mode = "tab"
+show_remote_branches = true
+merge_flags = "--no-squash --no-rebase"
+picker_placement = "popup"
+popup_width = "70%"
+popup_height = 24

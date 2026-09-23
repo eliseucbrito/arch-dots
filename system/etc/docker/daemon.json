@@ -1,0 +1,10 @@
+{
+    "log-driver": "json-file",
+    "log-opts": { "max-size": "10m", "max-file": "5" },
+    "bip": "10.99.0.1/16",
+    "dns": ["10.99.0.1"],
+    "default-address-pools": [
+        { "base": "10.100.0.0/16", "size": 24 },
+        { "base": "10.101.0.0/16", "size": 24 }
+    ]
+}

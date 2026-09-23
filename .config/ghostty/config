@@ -30,3 +30,8 @@ keybind = super+control+shift+alt+arrow_right=resize_split:right,100
 mouse-scroll-multiplier = 0.95
 
 async-backend = epoll
+
+# >>> herdr-radar font block
+font-codepoint-map = U+E1A0-U+E1B7=Herdr Agent Icons Max
+font-codepoint-map = U+E1C0-U+E1C5=Herdr Agent Icons Max
+# <<< herdr-radar font block

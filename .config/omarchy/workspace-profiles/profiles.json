@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "activeProfile": "default",
+  "loginProfile": "default",
+  "profiles": [
+    {
+      "id": "default",
+      "name": "Default",
+      "sequence": [],
+      "workspaces": {
+        "1": {
+          "root": {
+            "type": "leaf",
+            "app": "",
+            "args": ""
+          }
+        }
+      }
+    }
+  ]
+}

@@ -2,3 +2,4 @@
 -- o.launch_on_start("my-service")
 
 o.launch_on_start("hyprsunset")
+o.launch_on_start("qs -p " .. os.getenv("HOME") .. "/.config/quickshell/desktop-widgets")

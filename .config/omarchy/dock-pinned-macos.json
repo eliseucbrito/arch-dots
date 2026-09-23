@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "pinned": [
+    "brave-browser",
+    "org.gnome.Nautilus"
+  ],
+  "order": [
+    "brave-browser",
+    "org.gnome.Nautilus",
+    "spotify",
+    "kitty",
+    "com.rtosta.zapzap"
+  ]
+}
