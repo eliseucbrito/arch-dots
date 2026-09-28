@@ -62,9 +62,10 @@ apply_dns() {
     iface="$(default_iface)"; [ -z "$iface" ] && return 0
     command -v resolvectl >/dev/null 2>&1 || return 0
     [ -n "$servers" ] && sudo -n resolvectl dns "$iface" $servers 2>/dev/null
-    # domínios de busca + '~.' torna esta interface a rota DNS padrão enquanto
-    # a VPN está de pé (túnel completo). Ao desconectar, revert_dns restaura.
-    [ -n "$domains" ] && sudo -n resolvectl domain "$iface" $domains '~.' 2>/dev/null
+    
+    # O '~.' foi removido para evitar o Full Tunnel de DNS.
+    # A interface recebe os domínios de busca da VPN, mas não se torna a rota DNS padrão.
+    [ -n "$domains" ] && sudo -n resolvectl domain "$iface" $domains 2>/dev/null
     return 0
 }
 
@@ -82,21 +83,26 @@ revert_dns() {
 # saída e o tráfego não entra no túnel (hosts internos ficam inalcançáveis e o
 # DNS interno fica mudo). Garantimos a regra aqui (idempotente) e a removemos ao
 # desconectar. Ver README › VPN › Troubleshooting (bug #2).
-tunnel_rule_present() {
-    ip rule show 2>/dev/null | grep -qE "lookup ${IKE_RT_TABLE}( |\$)"
-}
-
 apply_route_rule() {
     tunnel_rule_present && return 0
-    sudo -n ip rule add from all lookup "$IKE_RT_TABLE" priority "$IKE_RT_TABLE" 2>/dev/null
+    # Em vez de mandar "from all", mandamos apenas o tráfego destinado 
+    # às redes internas (CIn/UFPE) para a tabela da VPN (220)
+    sudo -n ip rule add to 10.0.0.0/8 lookup "$IKE_RT_TABLE" priority "$IKE_RT_TABLE" 2>/dev/null
+    sudo -n ip rule add to 172.16.0.0/12 lookup "$IKE_RT_TABLE" priority "$IKE_RT_TABLE" 2>/dev/null
+    sudo -n ip rule add to 192.168.0.0/16 lookup "$IKE_RT_TABLE" priority "$IKE_RT_TABLE" 2>/dev/null
     sudo -n ip route flush cache 2>/dev/null
     return 0
 }
 
 revert_route_rule() {
-    while tunnel_rule_present; do
-        sudo -n ip rule del from all lookup "$IKE_RT_TABLE" priority "$IKE_RT_TABLE" 2>/dev/null || break
-    done
+    # Remove as regras específicas que criamos
+    sudo -n ip rule del to 10.0.0.0/8 lookup "$IKE_RT_TABLE" priority "$IKE_RT_TABLE" 2>/dev/null
+    sudo -n ip rule del to 172.16.0.0/12 lookup "$IKE_RT_TABLE" priority "$IKE_RT_TABLE" 2>/dev/null
+    sudo -n ip rule del to 192.168.0.0/16 lookup "$IKE_RT_TABLE" priority "$IKE_RT_TABLE" 2>/dev/null
+    
+    # Garante a limpeza da regra 'from all' antiga, caso ela ainda esteja presa no sistema
+    sudo -n ip rule del from all lookup "$IKE_RT_TABLE" priority "$IKE_RT_TABLE" 2>/dev/null
+    
     sudo -n ip route flush cache 2>/dev/null
     return 0
 }
@@ -110,7 +116,7 @@ connect_ovpn() {
     tmp="$(mktemp)"; chmod 600 "$tmp"; printf '%s\n' "$pw" > "$tmp"
     sudo -n openvpn --config "$cfg" --askpass "$tmp" --daemon
     sleep 2
-    shred -u "$tmp" 2>/dev/null || rm -f "$tmp"
+    shred -u "$tmp" 2>/dev/null \vert{}\vert{} rm -f "$tmp"
     if ovpn_up; then
         notify "VPN conectada" "OpenVPN: $name\n$(ip -4 addr show "$TUN_IF" | awk '/inet /{print $2}')"
     else
@@ -125,21 +131,21 @@ connect_ike() {
         notify "VPN" "sudoers não configurado — rode: sudo ~/.vpn/vpn-install-root.sh"; return 1
     fi
     login="$(ike_login)"
-    [ -z "$login" ] || [ "$login" = "SEU_LOGIN" ] && {
+    [ -z "$login" ] \vert{}\vert{} [ "$login" = "SEU_LOGIN" ] && {
         notify "VPN" "Defina seu login em eap_id (~/.vpn/swanctl/conns.conf)"; return 1; }
     IFS= read -r pw; [ -z "$pw" ] && return 0
     # injeta a credencial só em memória do charon e apaga o arquivo temporário
     tmp="$(mktemp)"; chmod 600 "$tmp"
     printf 'secrets {\n  eap-rt {\n    id = %s\n    secret = "%s"\n  }\n}\n' "$login" "$pw" > "$tmp"
     sudo -n swanctl --load-creds --file "$tmp" >/dev/null 2>&1
-    shred -u "$tmp" 2>/dev/null || rm -f "$tmp"
+    shred -u "$tmp" 2>/dev/null \vert{}\vert{} rm -f "$tmp"
     out="$(sudo -n swanctl --initiate --child "$name" 2>&1)"
     if ipsec_up; then
         apply_route_rule       # garante que o tráfego realmente entre no túnel…
         apply_dns "$name"      # …antes de apontar o DNS para os servidores internos
         notify "VPN conectada" "IKEv2: $name"
     else
-        notify "Erro na VPN" "$(printf '%s' "$out" | tail -n1)"
+        notify "Erro na VPN" "$(printf '\%s' "$out" | tail -n1)"
     fi
 }
 

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Thin IPC wrapper for the standalone plugin-host shell, equivalent to
+# /usr/bin/omarchy-shell but pointed at ~/.config/niri-omarchy-shell instead
+# of $OMARCHY_PATH/shell. Usage matches the "shell" IpcHandler in shell.qml:
+#   niri-omarchy-shell summon <plugin-id> ['{}']
+#   niri-omarchy-shell toggle <plugin-id> ['{}']
+#   niri-omarchy-shell hide <plugin-id>
+set -euo pipefail
+
+SHELL_PATH="${NIRI_OMARCHY_SHELL_PATH:-$HOME/.config/niri-omarchy-shell}"
+
+if [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
+  sock=$(find "/run/user/$(id -u)" -maxdepth 1 -name 'wayland-*' ! -name '*.lock' 2>/dev/null | head -n1)
+  [[ -n "$sock" ]] && export WAYLAND_DISPLAY="$(basename "$sock")"
+fi
+
+exec quickshell ipc -n -p "$SHELL_PATH" call -- shell "$@"

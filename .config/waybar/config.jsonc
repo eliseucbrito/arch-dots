@@ -12,7 +12,7 @@
   "modules-left": [
     "custom/omarchy",
     "custom/separator",
-    "hyprland/workspaces",
+    "niri/workspaces",
     "custom/separator",
     "custom/keyboard-layout",
     "idle_inhibitor",
@@ -36,6 +36,10 @@
     "backlight",
     "network",
     "custom/vpn",
+    "custom/capture",
+    "custom/linear",
+    "custom/gitlab-ci",
+    "custom/nightlight",
     "pulseaudio#input",
     "pulseaudio#output",
     "memory",
@@ -50,14 +54,9 @@
     "custom/separator2",
     "tray"
   ],
-  "hyprland/workspaces": {
+  "niri/workspaces": {
     "disable-scroll": true,
-    "all-outputs": true,
-    "cursor": true,
-    "format": "{icon}",
-    "persistent-workspaces": {
-      "*": 6
-    }
+    "format": "{icon}"
   },
   "custom/separator": {
     "format": "|",
@@ -107,6 +106,28 @@
     "interval": 10,
     "signal": 11,
     "on-click": "$HOME/.config/waybar/scripts/vpn.sh menu",
+    "tooltip": true
+  },
+  "custom/capture": {
+    "format": "󰆓",
+    "tooltip-format": "Capture to Obsidian",
+    "on-click": "$HOME/.config/niri-omarchy-shell/bin/niri-omarchy-shell toggle io.github.davidkim-sometimes-davekim.capture '{}'"
+  },
+  "custom/linear": {
+    "format": "󰔖",
+    "tooltip-format": "Linear",
+    "on-click": "$HOME/.config/niri-omarchy-shell/bin/niri-omarchy-shell toggle gpdenny.linear '{}'"
+  },
+  "custom/gitlab-ci": {
+    "format": "",
+    "tooltip-format": "GitLab CI",
+    "on-click": "$HOME/.config/niri-omarchy-shell/bin/niri-omarchy-shell toggle io.github.edgarsilva.gitlab-ci '{}'"
+  },
+  "custom/nightlight": {
+    "exec": "$HOME/.config/waybar/scripts/nightlight.sh",
+    "return-type": "json",
+    "interval": 5,
+    "on-click": "$HOME/.config/waybar/scripts/nightlight.sh toggle",
     "tooltip": true
   },
   "custom/omarchy": {
@@ -217,7 +238,7 @@
     "tooltip-format-disconnected": "Disconnected",
     "interval": 3,
     "spacing": 1,
-    "on-click": "omarchy-launch-wifi"
+    "on-click": "bar-open-network"
   },
   "battery": {
     "format": "{capacity}% {icon}",
@@ -246,7 +267,7 @@
     "format-disabled": "󰂲 {status}",
     "format-connected": "󰂱 {num_connections}",
     "tooltip-format": "Devices connected: {num_connections}",
-    "on-click": "omarchy-launch-bluetooth"
+    "on-click": "bar-open-bluetooth"
   },
   "pulseaudio#input": {
     "format-source": "",
@@ -328,7 +349,7 @@
     "exec": "/home/ecb/.config/waybar/scripts/keyboard-layout.sh",
     "return-type": "json",
     "interval": 1,
-    "on-click": "hyprctl switchxkblayout all next",
+    "on-click": "niri msg action switch-layout next",
     "tooltip": true
   },
   "custom/screenrecording-indicator": {

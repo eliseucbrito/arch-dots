@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Toggle the ported Omarchy bluetooth panel in the standalone quickshell
+# instance (see .config/quickshell/bar-widgets), used as waybar's
+# bluetooth module on-click.
+
+exec qs -c "$HOME/.config/quickshell/bar-widgets" ipc call omarchy.bluetooth toggle

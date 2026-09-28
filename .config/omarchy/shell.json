@@ -43,9 +43,6 @@
         },
         {
           "id": "omarchy.system-update"
-        },
-        {
-          "id": "ecb.taskle"
         }
       ],
       "left": [
@@ -146,9 +143,6 @@
     },
     {
       "id": "blizl.voxtype-osd"
-    },
-    {
-      "id": "tony.omatabs"
     },
     {
       "id": "io.github.imryiuk.workspace-profiles"

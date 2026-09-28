@@ -49,8 +49,8 @@ ShellRoot {
         property real dragStartX: 0
         property real dragStartY: 0
 
-        x: ClockPosition.x
-        y: ClockPosition.y
+        x: Math.max(0, Math.min(ClockPosition.x, panel.width - width))
+        y: Math.max(0, Math.min(ClockPosition.y, panel.height - height))
         width: 240
         height: 120
         radius: 16
@@ -140,8 +140,8 @@ ShellRoot {
           entryName: modelData.name
           entryDate: modelData.date
           pinned: !!modelData.pinned
-          x: modelData.x
-          y: modelData.y
+          x: Math.max(0, Math.min(modelData.x, panel.width - width))
+          y: Math.max(0, Math.min(modelData.y, panel.height - height))
 
           onContextMenuRequested: (menuX, menuY) => widgetMenu.openFor("countdown", entryId, x + menuX, y + menuY)
         }

@@ -6,9 +6,6 @@
   ],
   "order": [
     "brave-browser",
-    "org.gnome.Nautilus",
-    "spotify",
-    "kitty",
-    "com.rtosta.zapzap"
+    "org.gnome.Nautilus"
   ]
 }

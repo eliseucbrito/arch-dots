@@ -1,5 +1,8 @@
 jellyfin
 
+# Scratch session logs
+LOG.md
+
 # Environment files
 **/.env
 **/.env.*

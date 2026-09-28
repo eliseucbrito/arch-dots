@@ -1,14 +1,20 @@
 #!/usr/bin/env bash
 
 # =========================================================
-# VPN toggle/selector para a Waybar
+# VPN toggle/selector para a barra do Omarchy (widget ecb.vpn)
 #
-# Suporta duas tecnologias, selecionáveis num menu (walker):
+# Suporta duas tecnologias, listadas no painel QML do widget:
 #   • OpenVPN  — perfis em ~/.vpn/*.ovpn
 #   • IKEv2/IPsec (strongSwan) — conexões listadas em ~/.vpn/ikev2.list
 #
-# Sem argumento  -> imprime JSON de status para a Waybar.
-# menu           -> abre o seletor (on-click da Waybar).
+# Sem argumento        -> imprime JSON de status para a barra.
+# list                 -> imprime JSON dos perfis disponíveis + estado atual.
+# connect-ovpn <name>  -> conecta o perfil OpenVPN <name>, senha via stdin.
+# connect-ike <name>   -> conecta a conexão IKEv2 <name>, senha via stdin.
+# disconnect           -> encerra qualquer VPN ativa.
+#
+# A senha nunca é passada por argv nem gravada em disco: o painel QML a lê
+# de um campo de senha e a entrega a este script pelo stdin.
 #
 # Os comandos privilegiados (swanctl/openvpn) rodam via `sudo -n`,
 # liberado sem senha pelo drop-in /etc/sudoers.d/vpn-waybar.
@@ -20,7 +26,7 @@ IKE_LIST="$VPN_DIR/ikev2.list"
 IKE_RT_TABLE=220   # tabela onde o strongSwan instala a rota do túnel (charon.routing_table)
 
 notify() { notify-send -a "VPN" "$1" "$2"; }
-refresh() { pkill -RTMIN+11 waybar 2>/dev/null; }
+refresh() { omarchy-shell -q ecb.vpn refresh; }
 
 have_swanctl() { command -v swanctl >/dev/null 2>&1; }
 
@@ -34,18 +40,6 @@ ipsec_active_conn() { ipsec_sas | awk -F: 'NR==1{print $1; exit}'; }
 # ---------- listagem de VPNs disponíveis ----------
 ovpn_profiles() { ls "$VPN_DIR"/*.ovpn 2>/dev/null; }
 ike_conns() { [ -r "$IKE_LIST" ] && grep -vE '^\s*(#|$)' "$IKE_LIST"; }
-
-# ---------- senha (perguntada a cada conexão, nunca gravada em disco) ----------
-ask_password() {
-    local prompt="${1:-Senha}"
-    if command -v walker >/dev/null 2>&1; then
-        walker --password -p "$prompt" </dev/null 2>/dev/null
-    elif command -v zenity >/dev/null 2>&1; then
-        zenity --password --title="$prompt" 2>/dev/null
-    else
-        systemd-ask-password "$prompt:"
-    fi
-}
 
 # lê o eap_id (login) definido em conns.conf
 ike_login() {
@@ -108,10 +102,11 @@ revert_route_rule() {
 }
 
 # ---------- ações ----------
+# Senha lida da primeira linha do stdin (nunca de argv/disco).
 connect_ovpn() {
-    local cfg="$1" name pw tmp
-    name="$(basename "$cfg" .ovpn)"
-    pw="$(ask_password "Senha OpenVPN ($name)")"; [ -z "$pw" ] && return 0
+    local name="$1" cfg="$VPN_DIR/$1.ovpn" pw tmp
+    [ -r "$cfg" ] || { notify "Erro na VPN" "Perfil OpenVPN não encontrado: $name"; return 1; }
+    IFS= read -r pw; [ -z "$pw" ] && return 0
     tmp="$(mktemp)"; chmod 600 "$tmp"; printf '%s\n' "$pw" > "$tmp"
     sudo -n openvpn --config "$cfg" --askpass "$tmp" --daemon
     sleep 2
@@ -132,7 +127,7 @@ connect_ike() {
     login="$(ike_login)"
     [ -z "$login" ] || [ "$login" = "SEU_LOGIN" ] && {
         notify "VPN" "Defina seu login em eap_id (~/.vpn/swanctl/conns.conf)"; return 1; }
-    pw="$(ask_password "Senha VPN ($login)")"; [ -z "$pw" ] && return 0
+    IFS= read -r pw; [ -z "$pw" ] && return 0
     # injeta a credencial só em memória do charon e apaga o arquivo temporário
     tmp="$(mktemp)"; chmod 600 "$tmp"
     printf 'secrets {\n  eap-rt {\n    id = %s\n    secret = "%s"\n  }\n}\n' "$login" "$pw" > "$tmp"
@@ -162,30 +157,27 @@ disconnect_all() {
     fi
 }
 
-# ---------- menu (walker) ----------
-open_menu() {
-    local options=() choice
-    if ovpn_up || ipsec_up; then
-        options+=("󰌾  Desconectar")
+# ---------- listagem (JSON para o painel QML) ----------
+json_str() { printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'; }
+
+print_list() {
+    local active="null" entries=() p name c
+    if ovpn_up; then
+        active="\"$(json_str "$(basename "$(ovpn_profiles | head -n1)" .ovpn)")\""
+    elif ipsec_up; then
+        active="\"$(json_str "$(ipsec_active_conn)")\""
     fi
-    local p; for p in $(ovpn_profiles); do
-        options+=("󰖟  OpenVPN: $(basename "$p" .ovpn)")
+    for p in $(ovpn_profiles); do
+        name="$(basename "$p" .ovpn)"
+        entries+=("{\"kind\":\"ovpn\",\"name\":\"$(json_str "$name")\"}")
     done
-    local c; while read -r c; do
-        [ -n "$c" ] && options+=("󰦝  IKEv2: $c")
+    while read -r c; do
+        [ -n "$c" ] && entries+=("{\"kind\":\"ike\",\"name\":\"$(json_str "$c")\"}")
     done < <(ike_conns)
 
-    [ ${#options[@]} -eq 0 ] && { notify "VPN" "Nenhuma VPN configurada em $VPN_DIR"; exit 0; }
-
-    choice="$(printf '%s\n' "${options[@]}" | walker --dmenu -p 'VPN')"
-    [ -z "$choice" ] && exit 0
-
-    case "$choice" in
-        *Desconectar*)   disconnect_all ;;
-        *"OpenVPN: "*)   connect_ovpn "$VPN_DIR/${choice#*OpenVPN: }.ovpn" ;;
-        *"IKEv2: "*)     connect_ike "${choice#*IKEv2: }" ;;
-    esac
-    refresh
+    local joined; joined="$(IFS=,; echo "${entries[*]}")"
+    printf '{"connected":%s,"active":%s,"profiles":[%s]}\n' \
+        "$([ "$active" != "null" ] && echo true || echo false)" "$active" "$joined"
 }
 
 # ---------- status JSON ----------
@@ -203,6 +195,9 @@ print_status() {
 }
 
 case "$1" in
-    menu)   open_menu ;;
-    *)      print_status ;;
+    list)          print_list ;;
+    connect-ovpn)  connect_ovpn "$2"; refresh ;;
+    connect-ike)   connect_ike "$2"; refresh ;;
+    disconnect)    disconnect_all; refresh ;;
+    *)             print_status ;;
 esac

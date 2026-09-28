@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Launch a floating terminal running the given command.
+# Usage: bar-launch-terminal <command>
+
+cmd="$*"
+
+exec setsid uwsm-app -- xdg-terminal-exec --app-id=org.quickshell.bar-widgets --title=bar-widgets -e bash -c "$cmd"
