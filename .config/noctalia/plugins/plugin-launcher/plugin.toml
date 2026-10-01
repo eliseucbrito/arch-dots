@@ -1,0 +1,25 @@
+# Plugin launcher: lists installed Noctalia plugins and opens the panel of
+# any plugin that has one, without needing to pin each one to the bar.
+
+id         = "ecb/plugin-launcher"
+name       = "Plugin Launcher"
+version    = "1.0.0"
+plugin_api = 3
+author     = "ecb"
+license    = "MIT"
+description = "Lists installed plugins and opens their panels on demand."
+tags       = ["launcher", "plugins", "utility"]
+icon       = "apps"
+
+[[widget]]
+id    = "widget"
+entry = "widget.luau"
+
+[[panel]]
+id                        = "panel"
+entry                     = "panel.luau"
+width                     = 360
+height                    = 460
+placement                 = "attached"
+position                  = "auto"
+open_near_click           = true

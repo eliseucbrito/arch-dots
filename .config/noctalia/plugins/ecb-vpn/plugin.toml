@@ -1,0 +1,36 @@
+# CIn VPN (IKEv2/strongSwan) bar widget + panel.
+#
+# The status/connect/disconnect logic and the strongSwan sudoers commands
+# live in scripts/vpn.sh, unchanged from the old Omarchy/Waybar widget.
+# The password is stored in the system Secret Service (via secret-tool) since
+# the Luau runtime cannot write to a subprocess's stdin and settings.toml
+# would keep it in plaintext — the panel writes it once, the script reads it
+# from the keyring on each connect.
+
+id = "ecb/vpn"
+name = "CIn VPN"
+version = "1.0.0"
+plugin_api = 24
+author = "ecb"
+license = "MIT"
+description = "OpenVPN/IKEv2 status and connection panel for the CIn VPN."
+tags = ["vpn", "network"]
+icon = "shield-lock"
+dependencies = ["strongswan", "libsecret"]
+
+[[widget]]
+id = "widget"
+entry = "widget.luau"
+
+[[panel]]
+id = "panel"
+entry = "panel.luau"
+width = 320
+height = 220
+placement = "attached"
+position = "auto"
+open_near_click = true
+
+[[service]]
+id = "service"
+entry = "service.luau"

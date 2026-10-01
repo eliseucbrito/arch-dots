@@ -13,6 +13,18 @@
       "skillPath": "plugins/lgpd/skills/lgpd/SKILL.md",
       "computedHash": "3d0f5f58edd573cc6ee2edfe7f481a597d0487e346101fd306fa563c24f78a28"
     },
+    "noctalia-plugins": {
+      "source": "sapjax/noctalia-plugins-skill",
+      "sourceType": "github",
+      "skillPath": "skills/noctalia-plugins/SKILL.md",
+      "computedHash": "63c3af8eed84dbd176a0aa231bbc435ec2760a0ff819486e575323653625c407"
+    },
+    "noctalia-v5-plugin-development": {
+      "source": "dc-ja/noctalia-v5-plugin-development",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "21e2bbe66a9fba2e19903916cc8af22345b9c69ac035a155f8b7d390e09de4c1"
+    },
     "nono": {
       "source": "nono.sh",
       "sourceUrl": "https://nono.sh/docs",

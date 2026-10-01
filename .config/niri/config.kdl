@@ -9,8 +9,8 @@
 input {
     keyboard {
         xkb {
-            layout "br,us"
-            variant "abnt2,intl"
+            layout "br,us-br"
+            variant "abnt2,basic"
             options "grp:alts_toggle"
         }
 
@@ -636,3 +636,5 @@ binds {
     Mod+Shift+P { power-off-monitors; }
 }
 
+
+include "noctalia.kdl"

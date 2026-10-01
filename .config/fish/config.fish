@@ -172,6 +172,9 @@ function nlp-off
     echo "NLP environment deactivated"
 end
 
+# mise (runtime version manager — node, etc.)
+mise activate fish | source
+
 # Starship prompt
 starship init fish | source
 
